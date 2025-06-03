@@ -1,0 +1,64 @@
+server:
+  port: 9001
+spring:
+  application:
+    name: GPTalk admin console
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gptalk_db?options=-c%20TimeZone=UTC
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 60000
+      connection-timeout: 30000
+      pool-name: GPTalkHikariCP
+  jackson:
+    default-property-inclusion: non_null
+logging:
+  level:
+    root: debug
+
+gptalk:
+  auth:
+    jwt:
+      private-key: |
+        -----BEGIN PRIVATE KEY-----
+        MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCZ1svh/seFBuHv
+        qspchQEPTzRMgzyhSNUT4b9pOsB/CFUCj9SwQqGPCMejrDtvx+oR0YEf0Namg9VY
+        11vy2MrW6C0Hpi7I/mLlT1YQqXskmxxrr0IX8zVDb6BdqXX7H61vVPeJVrsJmr+1
+        fr3l/QtSsFnbJpYLAz5xdqWdT/E6SzVRSZ6cYOvI0s6yOfMhQln7oMf40v8tG8ER
+        mKyzG8HF+h50XbmHwd9JLStnnaA/pQTD+2bAAnhjYeMwAP2YabnDqqmQJ7cwW44e
+        66DZiHLrWWNDIV7qVrSSsatVfmzNEaJ2CHNq44JlRdUPOymEsvfyEJGrptLuv5Jq
+        P1Eb4prBAgMBAAECggEAB34ASnad0XL7HHDBL73ThiMZnTNUB9fT9sarC40utFEb
+        0Mbf+SCZnS10iZpY/7HpCqqdIwdI+O2ZPZ0pb3uS72H51XJIu4W2G8xgGOokIu2B
+        9hWgPqnb2Xetg/o9knghuncVIiVs8QQOG6D7TyDihQmtKqDntEwZZa29VZq/2RKe
+        wdQkrkxYGzssKj7554kPSsutcn+RANLV1Xhi/JbZUTWpCeU02B4jMxpYH5v0F5aY
+        /djYGo5mtBGMXylRBrjtTXTt/C/pkh7uSNk87K6eZLdgeVfRmxA4HB81RTuaQFNS
+        ulpw2JRpoaRGeBKPjBJOedBX2XzFasP60ywLzCCmkQKBgQDPo1n2U5CNuazrQ0Ig
+        n2gqdJGGMaoTDDYNa3WbyKlWnBZmSt6xABQdiSOGYEToggqGxo/LnknB2kOcWhkt
+        R/5AKJ1+WQd7RvGLvzYKX25scTAV7enw1clHo2LqEgNRLlMMFuWS62nxWGbNzRpY
+        hYKtB2Ab/B9xL1k2aLoGdJcBmQKBgQC9q54/KHfydKrcCnpJX20oioftuipOSlZH
+        hpkYBBszg/arGp5GUsipKuO/s4EV8K4ThRVOs+DBZ/PfRZQQE05WgSVlWxtcX3Ax
+        WkYEr/9FMSvp4P5TroDb+Um15iaC1Pp1HJx5eH8GFnF/Qobes5sBBD/qnuVztgYf
+        wirry4hraQKBgF8N1vdPVhOrdp/VEIbCsvsMljoqrkM+Cdim4xZIDE2b8x0tFTlO
+        YecLivnPRHx0W8FLUTTT58wY0W7YSEJUfO5+KWtX8nbbCWUCSgkBmxmFz4+adMhN
+        9nEXOQcS6/XUESytprdVkhBsedOpG3B+3k273KGzD+nO1TZ1RwQBh8exAoGAP9l8
+        JirLZjVcJ0Lns7eKGbG43JBlGYHw1Zc8BleriIYODb+iNG492qTzkl8tP2OMVkng
+        yGPJb5I9CJZ1p4u4PWqwWhR3e3stW4/WLlHJD1PkQpFZTHZcLrEW3UMjB7wGrFH7
+        YvDrYfNANeUBXgr8TTVPBv6Co5dNLHfC1ynnPLECgYA+BqI7Bg1AW6uJHkXwR1J9
+        P/NxpzUk8S7p4izp2T4ysBcXUyiRpUfVlSrVg2Xbb0B+sIWm/T919fcmGI4TTTN2
+        KiswkwKzvVggv05AUatb0YscGx58k9rmSuq4bY9umV6Hhswf1pPM2wMM7f6vTgE5
+        ZpUEbKTVQq/npd1riD0MWw==
+        -----END PRIVATE KEY-----
+      public-key: |
+        -----BEGIN PUBLIC KEY-----
+        MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAmdbL4f7HhQbh76rKXIUB
+        D080TIM8oUjVE+G/aTrAfwhVAo/UsEKhjwjHo6w7b8fqEdGBH9DWpoPVWNdb8tjK
+        1ugtB6YuyP5i5U9WEKl7JJsca69CF/M1Q2+gXal1+x+tb1T3iVa7CZq/tX695f0L
+        UrBZ2yaWCwM+cXalnU/xOks1UUmenGDryNLOsjnzIUJZ+6DH+NL/LRvBEZissxvB
+        xfoedF25h8HfSS0rZ52gP6UEw/tmwAJ4Y2HjMAD9mGm5w6qpkCe3MFuOHuug2Yhy
+        61ljQyFe6la0krGrVX5szRGidghzauOCZUXVDzsphLL38hCRq6bS7r+Saj9RG+Ka
+        wQIDAQAB
+        -----END PUBLIC KEY-----
