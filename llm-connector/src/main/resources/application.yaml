@@ -1,0 +1,22 @@
+server:
+  port: 8080
+spring:
+  application:
+    name: GPTalk connector
+  r2dbc:
+    pool:
+      enabled: true
+      initial-size: 10
+      max-size: 100
+      validation-query: "select 1"
+    url: r2dbc:postgresql://localhost:5432/gptalk_db
+    username: postgres
+    password: root
+  ai:
+    openai:
+      base-url: ${OPENAI_BASE_URL}
+      api-key: ${OPENAI_API_KEY}
+gptalk:
+  connector:
+    llm-provider:
+      base-url: http://localhost:9000
