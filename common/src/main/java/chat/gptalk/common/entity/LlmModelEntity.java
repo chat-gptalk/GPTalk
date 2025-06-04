@@ -4,10 +4,12 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
 @Table(name = "llm_models")
+@Builder
 public record LlmModelEntity(
     @Id
     Integer id,
@@ -16,11 +18,13 @@ public record LlmModelEntity(
     UUID modelId,
     UUID providerId,
     String name,
+    String status,
     List<String> features,
     Integer contextLength,
     Integer maxOutputTokens,
     Boolean enabled,
     Map<String, Object> defaultParams,
+    OffsetDateTime lastCheckedAt,
     OffsetDateTime createdAt,
     OffsetDateTime updatedAt
 ) {}

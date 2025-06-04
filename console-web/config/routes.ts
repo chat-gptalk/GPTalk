@@ -48,12 +48,16 @@ export default [
       {
         path: '/ai-service/providers',
         name: 'provider',
-        component: './Provider/List',
         routes: [
+          {
+            path: '/ai-service/providers',
+            component: './Provider',
+          },
           {
             path: '/ai-service/providers/:providerId/models',
             name: 'model',
             hideInMenu: true,
+            component: './Provider/Model',
           },
           {
             path: '/ai-service/providers/:providerId/keys',

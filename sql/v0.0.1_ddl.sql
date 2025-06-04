@@ -71,6 +71,7 @@ create table llm_providers
     provider_id      uuid        not null unique default gen_random_uuid(),
     name             text        not null unique,
     base_url         text        not null,
+    description      text        null,
     sdk_client_class text        not null        default 'openai',
     system           boolean     not null        default true,
     enabled          boolean     not null        default true,
@@ -102,12 +103,14 @@ create table llm_models
     model_id          uuid        not null unique default gen_random_uuid(),
     provider_id       uuid        not null,
     name              text        not null,
+    description       text        null,
     features          text[]      not null, -- chat, embedding, vision, audio_transcription, audio_generation, tool_calling, response_format
     context_length    integer     not null        default 0,
     max_output_tokens integer     not null        default 0,
     enabled           boolean     not null        default true,
-    status            text        not null        default 'ACTIVE',
+    status            text        not null        default 'HEALTHY',
     default_params    jsonb,-- top_n ...
+    last_checked_at   timestamptz,
     created_at        timestamptz not null        default now(),
     updated_at        timestamptz not null        default now(),
     unique (provider_id, name)

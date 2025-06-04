@@ -1,5 +1,7 @@
 package chat.gptalk.auth.model.response;
 
+import chat.gptalk.common.constants.ModelFeature;
+import chat.gptalk.common.constants.ModelStatus;
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -14,8 +16,10 @@ public record ModelResponse(
     @NotNull UUID modelId,
     @NotNull ProviderResponse provider,
     @NotNull String name,
-    @NotNull List<String> features,
+    String description,
+    @NotNull List<ModelFeature> features,
     @NotNull Integer contextLength,
+    @NotNull ModelStatus status,
     @NotNull Integer maxOutputTokens,
     @NotNull Boolean enabled,
     Map<String, Object> defaultParams,

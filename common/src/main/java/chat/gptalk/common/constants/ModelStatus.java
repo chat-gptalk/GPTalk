@@ -1,9 +1,11 @@
 package chat.gptalk.common.constants;
 
 public enum ModelStatus {
-    ACTIVE,
-    UNAVAILABLE,
-    MAINTENANCE,
-    TESTING
+    HEALTHY,
+    AUTH_FAILED,
+    RATE_LIMITED,
+    INVALID_CONFIG,
+    UNREACHABLE,
+    UNKNOWN_ERROR,
 }
 

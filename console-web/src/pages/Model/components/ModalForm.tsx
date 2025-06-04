@@ -7,7 +7,7 @@ import dayjs from "dayjs";
 import {useRequest} from "ahooks";
 
 
-const ModelForm: React.FC<Base.FormModelProps<API.VirtualModelResponse>> = (props) => {
+const ModalForm: React.FC<Base.FormModelProps<API.VirtualModelResponse>> = (props) => {
   const intl = useIntl();
   const [formRef] = Form.useForm();
   const {data: models, loading: modelLoading} = useRequest(async (): Promise<API.TreeNode[]> => {
@@ -92,4 +92,4 @@ const ModelForm: React.FC<Base.FormModelProps<API.VirtualModelResponse>> = (prop
   );
 };
 
-export default ModelForm;
+export default ModalForm;

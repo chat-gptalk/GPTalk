@@ -17,5 +17,5 @@ public interface VirtualModelRepository extends CrudRepository<VirtualModelEntit
 
     void deleteByVirtualModelIdIn(Collection<UUID> virtualModelIds);
 
-    List<VirtualModelEntity> findAllByVirtualModelIdIn(Collection<UUID> virtualModelIds);
+    List<VirtualModelEntity> findAllByTenantIdAndVirtualModelIdIn(UUID tenantId, Collection<UUID> virtualModelId);
 }

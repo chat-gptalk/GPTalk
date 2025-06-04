@@ -1,5 +1,6 @@
 package chat.gptalk.auth.service;
 
+import chat.gptalk.auth.model.request.CreateProviderRequest;
 import chat.gptalk.auth.model.response.ProviderResponse;
 import chat.gptalk.auth.model.response.TreeNode;
 import chat.gptalk.auth.repository.ModelRepository;
@@ -7,11 +8,17 @@ import chat.gptalk.auth.repository.ProviderRepository;
 import chat.gptalk.auth.util.SecurityUtils;
 import chat.gptalk.common.entity.LlmModelEntity;
 import chat.gptalk.common.entity.LlmProviderEntity;
+import chat.gptalk.common.exception.DataConflictException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -21,7 +28,7 @@ public class ProviderService {
     private final ProviderRepository providerRepository;
 
     public List<ProviderResponse> getCurrentTenantProviders() {
-        return providerRepository.findByTenantId(SecurityUtils.getCurrentUser().tenantId())
+        return providerRepository.findByTenantIdOrSystemOrderByIdDesc(SecurityUtils.getCurrentUser().tenantId(), true)
             .stream()
             .map(this::mapToResponse)
             .toList();
@@ -40,6 +47,7 @@ public class ProviderService {
             .extraConfig(entity.extraConfig())
             .sdkClientClass(entity.sdkClientClass())
             .system(entity.system())
+            .description(entity.description())
             .enabled(entity.enabled())
             .modelCount(modelRepository.countByProviderId(entity.providerId()))
             .createdAt(entity.createdAt())
@@ -77,5 +85,50 @@ public class ProviderService {
                 .selectable(true)
                 .build()).toList();
 
+    }
+
+    public ProviderResponse createProvider(@Valid CreateProviderRequest createProviderRequest) {
+        if (providerRepository.existsByNameAndTenantId(createProviderRequest.name(),
+            SecurityUtils.getCurrentUser().tenantId())) {
+            throw new DataConflictException("Provider already exists");
+        }
+        LlmProviderEntity providerEntity = LlmProviderEntity.builder()
+            .providerId(UUID.randomUUID())
+            .name(createProviderRequest.name())
+            .baseUrl(createProviderRequest.baseUrl())
+            .sdkClientClass(createProviderRequest.sdkClientClass())
+            .extraConfig(createProviderRequest.extraConfig())
+            .description(createProviderRequest.description())
+            .system(false)
+            .enabled(true)
+            .userId(SecurityUtils.getCurrentUser().userId())
+            .tenantId(SecurityUtils.getCurrentUser().tenantId())
+            .createdAt(OffsetDateTime.now())
+            .updatedAt(OffsetDateTime.now())
+            .build();
+        providerRepository.save(providerEntity);
+        return mapToResponse(providerEntity);
+    }
+
+    public boolean hasPermission(@NotNull String id) {
+        return hasPermissions(new String[]{id});
+    }
+
+    public boolean hasPermissions(@NotNull String[] ids) {
+        List<LlmProviderEntity> results = providerRepository.findAllByTenantIdAndProviderIdIn(
+            SecurityUtils.getCurrentUser().tenantId(),
+            Arrays.stream(ids).map(UUID::fromString).toList());
+        return results.size() == ids.length;
+    }
+
+    @Transactional
+    public void batchDelete(@NotNull String[] ids) {
+        providerRepository.deleteByProviderIdIn(Arrays.stream(ids).map(UUID::fromString).toList());
+    }
+
+    public ProviderResponse getProvider(String providerId) {
+        LlmProviderEntity provider = providerRepository.findOneByTenantIdAndProviderIdOrSystem(
+            SecurityUtils.getCurrentUser().tenantId(), UUID.fromString(providerId), true);
+        return mapToResponse(provider);
     }
 }

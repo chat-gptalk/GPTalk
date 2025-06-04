@@ -99,7 +99,8 @@ public class VirtualModelService {
     }
 
     public boolean hasPermissions(@NotNull String[] ids) {
-        List<VirtualModelEntity> results = virtualModelRepository.findAllByVirtualModelIdIn(
+        List<VirtualModelEntity> results = virtualModelRepository.findAllByTenantIdAndVirtualModelIdIn(
+            SecurityUtils.getCurrentUser().tenantId(),
             Arrays.stream(ids).map(UUID::fromString).toList());
         return results.size() == ids.length;
     }
