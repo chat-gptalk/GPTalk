@@ -1,7 +1,10 @@
 package chat.gptalk.auth.controller.user;
 
-import chat.gptalk.auth.service.ModelService;
+import chat.gptalk.common.constants.ModelFeature;
+import java.util.Arrays;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -10,6 +13,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class ModelController {
 
-    private final ModelService modelService;
-
+    @GetMapping("features")
+    public List<ModelFeature> getModelFeatures() {
+        return Arrays.stream(ModelFeature.values()).toList();
+    }
 }

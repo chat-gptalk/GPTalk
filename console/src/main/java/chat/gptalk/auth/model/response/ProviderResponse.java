@@ -11,6 +11,7 @@ public record ProviderResponse(
     @NotNull UUID providerId,
     @NotNull String name,
     @NotNull String baseUrl,
+    String description,
     @NotNull String sdkClientClass,
     @NotNull Boolean system,
     @NotNull Boolean enabled,

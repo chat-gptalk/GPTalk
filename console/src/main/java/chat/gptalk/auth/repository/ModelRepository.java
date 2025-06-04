@@ -19,4 +19,8 @@ public interface ModelRepository extends CrudRepository<LlmModelEntity, Integer>
     List<LlmModelEntity> findAll();
 
     Integer countByProviderId(UUID providerId);
+
+    boolean existsByNameAndProviderId(String name, UUID providerId);
+
+    void deleteByProviderIdAndModelIdIn(UUID providerId, List<UUID> ids);
 }

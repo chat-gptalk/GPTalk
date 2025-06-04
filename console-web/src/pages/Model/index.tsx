@@ -8,7 +8,7 @@ import {Typography, Badge, Button, App} from 'antd';
 import React, {useRef, useState} from 'react';
 import {getModels, createModel, batchDelete} from "@/services/console/virtualModelController";
 import {PlusOutlined} from "@ant-design/icons";
-import ModelForm from "@/pages/Model/components/ModelForm";
+import ModalForm from "@/pages/Model/components/ModalForm";
 
 const {Text} = Typography;
 
@@ -105,7 +105,7 @@ const ModelList: React.FC = () => {
       sorter: false,
       hideInForm: true,
       render: (_, record) => [
-        <a
+        /*<a
             key="edit"
             onClick={async () => {
               setSelectedData(record);
@@ -114,7 +114,7 @@ const ModelList: React.FC = () => {
             }}
         >
           Edit
-        </a>,
+        </a>,*/
         <a
             key="delete"
             onClick={() => {
@@ -195,7 +195,7 @@ const ModelList: React.FC = () => {
               </Button>
             </FooterToolbar>
         )}
-        <ModelForm
+        <ModalForm
             open={modelOpen}
             mode={formMode}
             initialValues={selectedData}

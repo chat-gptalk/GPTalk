@@ -1,13 +1,23 @@
 package chat.gptalk.auth.service;
 
+import chat.gptalk.auth.model.request.CreateProviderModelRequest;
 import chat.gptalk.auth.model.response.ModelResponse;
 import chat.gptalk.auth.repository.ModelRepository;
 import chat.gptalk.auth.util.SecurityUtils;
+import chat.gptalk.common.constants.ModelFeature;
+import chat.gptalk.common.constants.ModelStatus;
 import chat.gptalk.common.entity.LlmModelEntity;
+import chat.gptalk.common.exception.DataConflictException;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import java.time.OffsetDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -45,12 +55,41 @@ public class ModelService {
             .modelId(entity.modelId())
             .enabled(entity.enabled())
             .name(entity.name())
-            .features(entity.features())
+            .features(entity.features().stream().map(ModelFeature::valueOf).toList())
+            .status(ModelStatus.valueOf(entity.status()))
             .contextLength(entity.contextLength())
             .defaultParams(entity.defaultParams())
             .maxOutputTokens(entity.maxOutputTokens())
             .createdAt(entity.createdAt())
             .updatedAt(entity.updatedAt())
             .build();
+    }
+
+    public ModelResponse createProviderModel(String providerId, @Valid CreateProviderModelRequest createRequest) {
+        if (modelRepository.existsByNameAndProviderId(createRequest.name(), UUID.fromString(providerId))) {
+            throw new DataConflictException("The provider already exists");
+        }
+        LlmModelEntity modelEntity = LlmModelEntity.builder()
+            .modelId(UUID.randomUUID())
+            .providerId(UUID.fromString(providerId))
+            .name(createRequest.name())
+            .features(createRequest.features().stream().map(Enum::name).collect(Collectors.toList()))
+            .enabled(true)
+            .contextLength(0)
+            .maxOutputTokens(0)
+            .status(ModelStatus.HEALTHY.name())
+            .userId(SecurityUtils.getCurrentUser().userId())
+            .tenantId(SecurityUtils.getCurrentUser().tenantId())
+            .createdAt(OffsetDateTime.now())
+            .updatedAt(OffsetDateTime.now())
+            .build();
+        modelRepository.save(modelEntity);
+        return mapToResponse(modelEntity);
+    }
+
+    @Transactional
+    public void batchDelete(String providerId, @NotNull String[] ids) {
+        modelRepository.deleteByProviderIdAndModelIdIn(
+            UUID.fromString(providerId), Arrays.stream(ids).map(UUID::fromString).toList());
     }
 }

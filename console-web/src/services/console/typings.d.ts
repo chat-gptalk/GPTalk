@@ -1,4 +1,8 @@
 declare namespace API {
+  type batchDeleteProviderModelParams = {
+    providerId: string;
+  };
+
   type BatchDeleteRequest = {
     ids: string[];
   };
@@ -27,6 +31,35 @@ declare namespace API {
     updatedAt: string;
   };
 
+  type createProviderModelParams = {
+    providerId: string;
+  };
+
+  type CreateProviderModelRequest = {
+    name: string;
+    features: (
+      | 'CHAT'
+      | 'COMPLETION'
+      | 'EMBEDDING'
+      | 'VISION'
+      | 'TOOL_CALLING'
+      | 'MULTI_MODAL'
+      | 'SPEECH'
+      | 'CODE_INTERPRETER'
+      | 'STREAMING'
+      | 'JSON_MODE'
+      | 'SYSTEM_PROMPT'
+    )[];
+  };
+
+  type CreateProviderRequest = {
+    name: string;
+    baseUrl: string;
+    description?: string;
+    sdkClientClass: string;
+    extraConfig?: Record<string, any>;
+  };
+
   type CreateVirtualModelRequest = {
     name?: string;
     description?: string;
@@ -34,6 +67,10 @@ declare namespace API {
   };
 
   type getProviderModelsParams = {
+    providerId: string;
+  };
+
+  type getProviderParams = {
     providerId: string;
   };
 
@@ -59,8 +96,28 @@ declare namespace API {
     modelId: string;
     provider: ProviderResponse;
     name: string;
-    features: string[];
+    description?: string;
+    features: (
+      | 'CHAT'
+      | 'COMPLETION'
+      | 'EMBEDDING'
+      | 'VISION'
+      | 'TOOL_CALLING'
+      | 'MULTI_MODAL'
+      | 'SPEECH'
+      | 'CODE_INTERPRETER'
+      | 'STREAMING'
+      | 'JSON_MODE'
+      | 'SYSTEM_PROMPT'
+    )[];
     contextLength: number;
+    status:
+      | 'HEALTHY'
+      | 'AUTH_FAILED'
+      | 'RATE_LIMITED'
+      | 'INVALID_CONFIG'
+      | 'UNREACHABLE'
+      | 'UNKNOWN_ERROR';
     maxOutputTokens: number;
     enabled: boolean;
     defaultParams?: Record<string, any>;
@@ -72,6 +129,7 @@ declare namespace API {
     providerId: string;
     name: string;
     baseUrl: string;
+    description?: string;
     sdkClientClass: string;
     system: boolean;
     enabled: boolean;

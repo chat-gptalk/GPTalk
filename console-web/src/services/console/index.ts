@@ -5,14 +5,16 @@
 import * as apiKeyController from './apiKeyController';
 import * as authController from './authController';
 import * as jwtController from './jwtController';
+import * as modelController from './modelController';
 import * as providerController from './providerController';
 import * as userController from './userController';
 import * as virtualModelController from './virtualModelController';
 export default {
   virtualModelController,
+  providerController,
   apiKeyController,
   authController,
   userController,
-  providerController,
+  modelController,
   jwtController,
 };
