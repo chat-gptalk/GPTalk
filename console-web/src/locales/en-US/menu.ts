@@ -7,9 +7,8 @@ export default {
   'menu.virtual-model': 'Virtual Model Management',
 
   'menu.ai-service': 'AI Service',
-  'menu.ai-service.provider': 'Provider Management',
-  'menu.ai-service.provider.model': 'Models',
-  'menu.ai-service.provider.key': 'Keys',
+  'menu.ai-service.model': 'Models',
+  'menu.ai-service.key': 'Keys',
 
   'menu.key': 'Key Management',
   'menu.key.list': 'API Keys',

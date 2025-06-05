@@ -41,7 +41,7 @@ public class VirtualModelService {
         if (!createVirtualModelRequest.name().startsWith("vm:")) {
             name = "vm:" + name;
         }
-        if (virtualModelRepository.existsByTenantIdAndName(SecurityUtils.getCurrentUser().tenantId(), name)) {
+        if (virtualModelRepository.existsByTenantIdAndName(SecurityUtils.getTenantId(), name)) {
             throw new DataConflictException("Model " + name + " already exists");
         }
         UUID virtualModelId = UUID.randomUUID();
@@ -51,7 +51,7 @@ public class VirtualModelService {
             .virtualModelId(virtualModelId)
             .enabled(true)
             .userId(SecurityUtils.getCurrentUser().userId())
-            .tenantId(SecurityUtils.getCurrentUser().tenantId())
+            .tenantId(SecurityUtils.getTenantId())
             .createdAt(OffsetDateTime.now())
             .updatedAt(OffsetDateTime.now())
             .build();
@@ -61,7 +61,7 @@ public class VirtualModelService {
                 .modelId(UUID.fromString(modelId))
                 .virtualModelId(virtualModelId)
                 .userId(SecurityUtils.getCurrentUser().userId())
-                .tenantId(SecurityUtils.getCurrentUser().tenantId())
+                .tenantId(SecurityUtils.getTenantId())
                 .weight(0)
                 .priority(0)
                 .build())
@@ -100,7 +100,7 @@ public class VirtualModelService {
 
     public boolean hasPermissions(@NotNull String[] ids) {
         List<VirtualModelEntity> results = virtualModelRepository.findAllByTenantIdAndVirtualModelIdIn(
-            SecurityUtils.getCurrentUser().tenantId(),
+            SecurityUtils.getTenantId(),
             Arrays.stream(ids).map(UUID::fromString).toList());
         return results.size() == ids.length;
     }

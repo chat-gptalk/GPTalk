@@ -1,18 +1,14 @@
 import {FormattedMessage, useIntl} from '@umijs/max';
-import {DatePicker, Form, FormInstance, Input, Modal, Select, Switch, TreeSelect} from 'antd';
+import {Alert, DatePicker, Form, FormInstance, Input, Modal, Select, Switch, TreeSelect} from 'antd';
 import React, {useRef, useState} from 'react';
-import {getProviderTree, getProviderModels} from '@/services/console/providerController';
-import {createModel} from '@/services/console/virtualModelController';
-import dayjs from "dayjs";
+import {getModelFeatures} from '@/services/console/modelController';
 import {useRequest} from "ahooks";
 
-
-const ModalForm: React.FC<Base.FormModelProps<API.VirtualModelResponse>> = (props) => {
+const ModalForm: React.FC<Base.FormModelProps<API.ModelResponse>> = (props) => {
   const intl = useIntl();
   const [formRef] = Form.useForm();
-  const {data: models, loading: modelLoading} = useRequest(async (): Promise<API.TreeNode[]> => {
-    return getProviderTree();
-  });
+  const [error, setError] = useState<Base.ProblemDetail>();
+  const {data: features} = useRequest(() => getModelFeatures());
   return (
       <Modal
           width={640}
@@ -20,16 +16,28 @@ const ModalForm: React.FC<Base.FormModelProps<API.VirtualModelResponse>> = (prop
             body: {padding: '32px 40px 48px'}
           }}
           destroyOnHidden
-          title={props.mode == 'create' ? 'New Model' : 'Edit Model'}
+          title={props.mode == 'create' ? 'New' : 'Edit'}
           open={props.open}
           onCancel={() => {
             props.onCancel();
           }}
           onOk={async () => {
             const values = await formRef.validateFields();
-            return await props.onSubmit(values);
+            return await props.onSubmit(values).catch(err => {
+              setError(err);
+            });
           }}
       >
+        {
+            error && <Alert
+                style={{
+                  marginBottom: 24,
+                }}
+                message={error.detail}
+                type="error"
+                showIcon
+            />
+        }
         <Form
             form={formRef}
             labelCol={{
@@ -39,53 +47,35 @@ const ModalForm: React.FC<Base.FormModelProps<API.VirtualModelResponse>> = (prop
               span: 18
             }}
             initialValues={props.initialValues
-                ? {
-                  ...props.initialValues,
-                  name: props.initialValues.name?.substring(4),
-                  modelIds: props.initialValues.models?.map(model => model.model?.modelId),
+                ? props.initialValues
+                : {
+                  sdkClientClass: 'openai'
                 }
-                : undefined
             }
             clearOnDestroy>
-          <Form.Item name="name" label="Model Name" rules={[
+          <Form.Item name="name" label="Name" rules={[
             {
               required: true
             },
             {
-              pattern: /^[a-z][a-z0-9-]{0,49}$/
+              min: 2,
+              max: 50,
             },
           ]}>
-            <Input addonBefore="vm:"/>
+            <Input/>
           </Form.Item>
 
-          {
-            modelLoading
-                ? null
-                :
-                <Form.Item
-                    name="modelIds"
-                    label="Models"
-                    rules={[
-                      {
-                        required: true
-                      },
-                    ]}>
-                  <TreeSelect
-                      loading={modelLoading}
-                      treeDefaultExpandAll
-                      treeData={models ?? []}
-                      multiple
-                  />
-                </Form.Item>
-          }
-
-          <Form.Item name="description" label="Description" rules={[
+          <Form.Item name="features" label="Features" rules={[
             {
-              min: 2,
-              max: 100,
+              required: true,
             }
           ]}>
-            <Input.TextArea/>
+            <Select
+                mode="multiple"
+                options={(features ?? []).map(it => ({
+                  value: it,
+                  label: it
+                }))}/>
           </Form.Item>
         </Form>
       </Modal>

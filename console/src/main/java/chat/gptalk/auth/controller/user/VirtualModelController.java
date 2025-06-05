@@ -25,19 +25,19 @@ public class VirtualModelController {
     private final VirtualModelService virtualModelService;
 
     @GetMapping
-    public List<VirtualModelResponse> getModels() {
+    public List<VirtualModelResponse> getVirtualModels() {
         return virtualModelService.getModels();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public VirtualModelResponse createModel(@Valid @RequestBody CreateVirtualModelRequest createVirtualModelRequest) {
+    public VirtualModelResponse createVirtualModel(@Valid @RequestBody CreateVirtualModelRequest createVirtualModelRequest) {
         return virtualModelService.createModel(createVirtualModelRequest);
     }
 
     @DeleteMapping
     @PreAuthorize("@virtualModelService.hasPermissions(#batchDeleteRequest.ids())")
-    public void batchDelete(@RequestBody BatchDeleteRequest batchDeleteRequest) {
+    public void batchDeleteVirtualModel(@RequestBody BatchDeleteRequest batchDeleteRequest) {
         virtualModelService.batchDelete(batchDeleteRequest.ids());
     }
 }

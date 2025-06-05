@@ -1,6 +1,5 @@
 package chat.gptalk.auth.controller.user;
 
-import chat.gptalk.auth.model.request.CreateProviderModelRequest;
 import chat.gptalk.auth.model.request.CreateProviderRequest;
 import chat.gptalk.auth.model.response.ModelResponse;
 import chat.gptalk.auth.model.response.ProviderResponse;
@@ -59,20 +58,5 @@ public class ProviderController {
     @GetMapping("{providerId}/models")
     public List<ModelResponse> getProviderModels(@PathVariable("providerId") String providerId) {
         return modelService.getProviderModels(providerId);
-    }
-
-    @PostMapping("{providerId}/models")
-    @PreAuthorize("@providerService.hasPermission(#providerId)")
-    public ModelResponse createProviderModel(@PathVariable("providerId") String providerId,
-        @RequestBody @Valid CreateProviderModelRequest createRequest) {
-        return modelService.createProviderModel(providerId, createRequest);
-    }
-
-    @Operation(operationId = "batchDeleteProviderModel")
-    @DeleteMapping("{providerId}/models")
-    @PreAuthorize("@providerService.hasPermission(#providerId)")
-    public void batchDeleteProviderModel(@PathVariable String providerId,
-        @RequestBody BatchDeleteRequest batchDeleteRequest) {
-        modelService.batchDelete(providerId, batchDeleteRequest.ids());
     }
 }
