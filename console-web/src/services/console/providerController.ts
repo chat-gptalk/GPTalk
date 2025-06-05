@@ -68,44 +68,6 @@ export async function getProviderModels(
   });
 }
 
-/** 此处后端没有提供注释 POST /api/v1/providers/${param0}/models */
-export async function createProviderModel(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.createProviderModelParams,
-  body: API.CreateProviderModelRequest,
-  options?: { [key: string]: any },
-) {
-  const { providerId: param0, ...queryParams } = params;
-  return request<API.ModelResponse>(`/api/v1/providers/${param0}/models`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    params: { ...queryParams },
-    data: body,
-    ...(options || {}),
-  });
-}
-
-/** 此处后端没有提供注释 DELETE /api/v1/providers/${param0}/models */
-export async function batchDeleteProviderModel(
-  // 叠加生成的Param类型 (非body参数swagger默认没有生成对象)
-  params: API.batchDeleteProviderModelParams,
-  body: API.BatchDeleteRequest,
-  options?: { [key: string]: any },
-) {
-  const { providerId: param0, ...queryParams } = params;
-  return request<any>(`/api/v1/providers/${param0}/models`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    params: { ...queryParams },
-    data: body,
-    ...(options || {}),
-  });
-}
-
 /** 此处后端没有提供注释 GET /api/v1/providers/tree */
 export async function getProviderTree(options?: { [key: string]: any }) {
   return request<API.TreeNode[]>('/api/v1/providers/tree', {

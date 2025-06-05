@@ -12,7 +12,7 @@ public interface ProviderRepository extends CrudRepository<LlmProviderEntity, In
 
     LlmProviderEntity findByProviderId(UUID providerId);
 
-    List<LlmProviderEntity> findByTenantIdOrSystemOrderByIdDesc(UUID tenantId, Boolean system);
+    List<LlmProviderEntity> findByTenantIdOrderByIdDesc(UUID tenantId);
 
     boolean existsByNameAndTenantId(String name, UUID tenantId);
 

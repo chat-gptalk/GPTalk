@@ -20,7 +20,12 @@ public interface ModelRepository extends CrudRepository<LlmModelEntity, Integer>
 
     Integer countByProviderId(UUID providerId);
 
-    boolean existsByNameAndProviderId(String name, UUID providerId);
 
-    void deleteByProviderIdAndModelIdIn(UUID providerId, List<UUID> ids);
+    void deleteByTenantIdAndModelIdIn(UUID tenantId, List<UUID> ids);
+
+    LlmModelEntity findOneByTenantIdAndModelId(UUID tenantId, UUID modelId);
+
+    boolean existsByTenantIdAndName(UUID tenantId, String name);
+
+    boolean existsByTenantIdAndIdNotAndName(UUID tenantId, Integer id, String name);
 }

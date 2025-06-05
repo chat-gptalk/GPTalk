@@ -2,6 +2,7 @@ package chat.gptalk.auth.util;
 
 import chat.gptalk.common.exception.UnauthorizedException;
 import chat.gptalk.common.security.ConsoleAuthenticatedUser;
+import java.util.UUID;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -14,5 +15,9 @@ public final class SecurityUtils {
             return (ConsoleAuthenticatedUser)authentication.getPrincipal();
         }
         throw new UnauthorizedException();
+    }
+
+    public static UUID getTenantId() {
+        return getCurrentUser().tenantId();
     }
 }

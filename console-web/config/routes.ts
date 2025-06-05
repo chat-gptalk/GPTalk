@@ -33,7 +33,7 @@ export default [
     name: 'virtual-model',
     icon: 'crown',
     access: 'canAdmin',
-    component: './Model',
+    component: './VirtualModel',
   },
   {
     path: '/ai-service',
@@ -42,29 +42,14 @@ export default [
     access: 'canAdmin',
     routes: [
       {
-        path: '/ai-service',
-        redirect: '/ai-service/providers',
+        path: '/ai-service/models',
+        name: 'model',
+        component: './Model',
       },
       {
-        path: '/ai-service/providers',
-        name: 'provider',
-        routes: [
-          {
-            path: '/ai-service/providers',
-            component: './Provider',
-          },
-          {
-            path: '/ai-service/providers/:providerId/models',
-            name: 'model',
-            hideInMenu: true,
-            component: './Provider/Model',
-          },
-          {
-            path: '/ai-service/providers/:providerId/keys',
-            name: 'key',
-            hideInMenu: true,
-          },
-        ],
+        path: '/ai-service/keys',
+        name: 'key',
+        component: './Key',
       },
     ],
   },

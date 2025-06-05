@@ -28,7 +28,7 @@ public class ProviderService {
     private final ProviderRepository providerRepository;
 
     public List<ProviderResponse> getCurrentTenantProviders() {
-        return providerRepository.findByTenantIdOrSystemOrderByIdDesc(SecurityUtils.getCurrentUser().tenantId(), true)
+        return providerRepository.findByTenantIdOrderByIdDesc(SecurityUtils.getTenantId())
             .stream()
             .map(this::mapToResponse)
             .toList();
@@ -89,7 +89,7 @@ public class ProviderService {
 
     public ProviderResponse createProvider(@Valid CreateProviderRequest createProviderRequest) {
         if (providerRepository.existsByNameAndTenantId(createProviderRequest.name(),
-            SecurityUtils.getCurrentUser().tenantId())) {
+            SecurityUtils.getTenantId())) {
             throw new DataConflictException("Provider already exists");
         }
         LlmProviderEntity providerEntity = LlmProviderEntity.builder()
@@ -102,7 +102,7 @@ public class ProviderService {
             .system(false)
             .enabled(true)
             .userId(SecurityUtils.getCurrentUser().userId())
-            .tenantId(SecurityUtils.getCurrentUser().tenantId())
+            .tenantId(SecurityUtils.getTenantId())
             .createdAt(OffsetDateTime.now())
             .updatedAt(OffsetDateTime.now())
             .build();
@@ -116,7 +116,7 @@ public class ProviderService {
 
     public boolean hasPermissions(@NotNull String[] ids) {
         List<LlmProviderEntity> results = providerRepository.findAllByTenantIdAndProviderIdIn(
-            SecurityUtils.getCurrentUser().tenantId(),
+            SecurityUtils.getTenantId(),
             Arrays.stream(ids).map(UUID::fromString).toList());
         return results.size() == ids.length;
     }
@@ -128,7 +128,7 @@ public class ProviderService {
 
     public ProviderResponse getProvider(String providerId) {
         LlmProviderEntity provider = providerRepository.findOneByTenantIdAndProviderIdOrSystem(
-            SecurityUtils.getCurrentUser().tenantId(), UUID.fromString(providerId), true);
+            SecurityUtils.getTenantId(), UUID.fromString(providerId), true);
         return mapToResponse(provider);
     }
 }

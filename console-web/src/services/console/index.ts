@@ -12,9 +12,9 @@ import * as virtualModelController from './virtualModelController';
 export default {
   virtualModelController,
   providerController,
+  modelController,
   apiKeyController,
   authController,
   userController,
-  modelController,
   jwtController,
 };

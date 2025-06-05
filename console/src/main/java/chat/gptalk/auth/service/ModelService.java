@@ -1,6 +1,7 @@
 package chat.gptalk.auth.service;
 
-import chat.gptalk.auth.model.request.CreateProviderModelRequest;
+import chat.gptalk.auth.model.request.CreateModelRequest;
+import chat.gptalk.auth.model.request.PatchModelRequest;
 import chat.gptalk.auth.model.response.ModelResponse;
 import chat.gptalk.auth.repository.ModelRepository;
 import chat.gptalk.auth.util.SecurityUtils;
@@ -27,7 +28,7 @@ public class ModelService {
     private final ProviderService providerService;
 
     public List<ModelResponse> getModels() {
-        return modelRepository.findByTenantId(SecurityUtils.getCurrentUser().tenantId())
+        return modelRepository.findByTenantId(SecurityUtils.getTenantId())
             .stream()
             .map(this::mapToResponse)
             .toList();
@@ -65,13 +66,13 @@ public class ModelService {
             .build();
     }
 
-    public ModelResponse createProviderModel(String providerId, @Valid CreateProviderModelRequest createRequest) {
-        if (modelRepository.existsByNameAndProviderId(createRequest.name(), UUID.fromString(providerId))) {
+    public ModelResponse createModel(@Valid CreateModelRequest createRequest) {
+        if (modelRepository.existsByTenantIdAndName(SecurityUtils.getTenantId(), createRequest.name())) {
             throw new DataConflictException("The provider already exists");
         }
         LlmModelEntity modelEntity = LlmModelEntity.builder()
             .modelId(UUID.randomUUID())
-            .providerId(UUID.fromString(providerId))
+            .providerId(UUID.fromString(createRequest.providerId()))
             .name(createRequest.name())
             .features(createRequest.features().stream().map(Enum::name).collect(Collectors.toList()))
             .enabled(true)
@@ -79,7 +80,7 @@ public class ModelService {
             .maxOutputTokens(0)
             .status(ModelStatus.HEALTHY.name())
             .userId(SecurityUtils.getCurrentUser().userId())
-            .tenantId(SecurityUtils.getCurrentUser().tenantId())
+            .tenantId(SecurityUtils.getTenantId())
             .createdAt(OffsetDateTime.now())
             .updatedAt(OffsetDateTime.now())
             .build();
@@ -88,8 +89,30 @@ public class ModelService {
     }
 
     @Transactional
-    public void batchDelete(String providerId, @NotNull String[] ids) {
-        modelRepository.deleteByProviderIdAndModelIdIn(
-            UUID.fromString(providerId), Arrays.stream(ids).map(UUID::fromString).toList());
+    public void batchDelete(@NotNull String[] ids) {
+        modelRepository.deleteByTenantIdAndModelIdIn(
+            SecurityUtils.getTenantId(), Arrays.stream(ids).map(UUID::fromString).toList());
+    }
+
+    public ModelResponse patchProviderModel(String modelId,
+        @Valid PatchModelRequest patchRequest) {
+        LlmModelEntity modelEntity = modelRepository.findOneByTenantIdAndModelId(
+            SecurityUtils.getTenantId(), UUID.fromString(modelId));
+        if (patchRequest.enabled() != null) {
+            modelEntity = modelEntity.withEnabled(patchRequest.enabled());
+        }
+        if (patchRequest.name() != null) {
+            boolean exists = modelRepository.existsByTenantIdAndIdNotAndName(SecurityUtils.getTenantId(),
+                modelEntity.id(), patchRequest.name());
+            if (exists) {
+                throw new DataConflictException("The model name already exists");
+            }
+            modelEntity = modelEntity.withName(patchRequest.name());
+        }
+        if (patchRequest.features() != null) {
+            modelEntity = modelEntity.withFeatures(patchRequest.features().stream().map(Enum::name).toList());
+        }
+        modelRepository.save(modelEntity);
+        return mapToResponse(modelEntity);
     }
 }

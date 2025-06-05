@@ -1,8 +1,4 @@
 declare namespace API {
-  type batchDeleteProviderModelParams = {
-    providerId: string;
-  };
-
   type BatchDeleteRequest = {
     ids: string[];
   };
@@ -31,12 +27,9 @@ declare namespace API {
     updatedAt: string;
   };
 
-  type createProviderModelParams = {
-    providerId: string;
-  };
-
-  type CreateProviderModelRequest = {
+  type CreateModelRequest = {
     name: string;
+    providerId: string;
     features: (
       | 'CHAT'
       | 'COMPLETION'
@@ -123,6 +116,28 @@ declare namespace API {
     defaultParams?: Record<string, any>;
     createdAt: string;
     updatedAt: string;
+  };
+
+  type PatchModelRequest = {
+    name?: string;
+    features?: (
+      | 'CHAT'
+      | 'COMPLETION'
+      | 'EMBEDDING'
+      | 'VISION'
+      | 'TOOL_CALLING'
+      | 'MULTI_MODAL'
+      | 'SPEECH'
+      | 'CODE_INTERPRETER'
+      | 'STREAMING'
+      | 'JSON_MODE'
+      | 'SYSTEM_PROMPT'
+    )[];
+    enabled?: boolean;
+  };
+
+  type patchProviderModelParams = {
+    modelId: string;
   };
 
   type ProviderResponse = {
