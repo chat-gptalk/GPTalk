@@ -4,40 +4,59 @@ import {
   ProTable,
 } from '@ant-design/pro-components';
 import {FormattedMessage, useIntl,} from '@umijs/max';
-import {Typography, Badge, Button, App} from 'antd';
+import {Typography, Badge, Button, App, Space, Select, Card} from 'antd';
 import React, {useRef, useState} from 'react';
-import {getModels, createModel, batchDelete} from "@/services/console/virtualModelController";
+import {
+  getProviderKeyValue,
+  getProviderKeys,
+  createProviderKey,
+  patchProviderKey,
+  batchDeleteProviderKey
+} from "@/services/console/providerKeyController";
 import {PlusOutlined} from "@ant-design/icons";
-import ModalForm from "@/pages/Model/components/ModalForm";
+import ProviderKeyModalForm from "@/pages/Key/components/ProviderKeyModalForm";
+import {useRequest} from "ahooks";
+import {getProviders} from "@/services/console/providerController";
+import {history, useSearchParams} from "@@/exports";
 
-const {Text} = Typography;
+const {Text, Paragraph} = Typography;
 
-const ModelList: React.FC = () => {
+const ProviderKeyList: React.FC = () => {
   const actionRef = useRef<ActionType>();
 
   const [modelOpen, setModelOpen] = useState(false);
-  const [selectedData, setSelectedData] = useState<API.VirtualModelResponse>();
+  const [selectedData, setSelectedData] = useState<API.ProviderKeyResponse>();
   const [formMode, setFormMode] = useState<Base.FormMode>('create');
 
-  const [selectedRowsState, setSelectedRows] = useState<API.VirtualModelResponse[]>([]);
+  const [searchParams] = useSearchParams();
+
+  const [providerId, setProviderId] = useState<string | null>(searchParams.get('providerId'));
+
+  const [selectedRowsState, setSelectedRows] = useState<API.ProviderKeyResponse[]>([]);
 
   const {modal, message} = App.useApp();
 
+  const {data: providers, loading: providerLoading} = useRequest(() => getProviders());
+
+  if (!providers) {
+    return null;
+  }
   const intl = useIntl();
-  const requestTableData = async () => {
-    const it = await getModels();
+  const requestTableData = async ({providerId: pid}: any) => {
+    const it = await getProviderKeys({
+      providerId: pid,
+    });
     return {
       data: it,
       total: it.length,
     };
   }
 
-
-  const columns: ProColumns<API.VirtualModelResponse>[] = [
+  const columns: ProColumns<API.ProviderKeyResponse>[] = [
     {
       title: 'ID',
       hideInSearch: true,
-      dataIndex: 'virtualModelId',
+      dataIndex: 'providerKeyId',
     },
     {
       title: 'Name',
@@ -47,14 +66,13 @@ const ModelList: React.FC = () => {
         return <Text copyable={{text: record.name}}>{record.name}</Text>;
       }
     },
-    /*{
+    {
       title: 'Provider',
-      dataIndex: 'provider.name',
-      hideInSearch: true,
+      dataIndex: 'provider',
       render: (_, record) => {
-        return <>{record.provider?.alias}</>
+        return <>{record.provider.name}</>
       }
-    },*/
+    },
     {
       title: 'Status',
       dataIndex: 'active',
@@ -66,22 +84,11 @@ const ModelList: React.FC = () => {
         return <Badge status="error" text="Inactive"/>;
       }
     },
-    /*{
-      title: 'Health Status',
-      dataIndex: 'health_status',
-      hideInSearch: true,
-      render: (_, record) => {
-        if (record.healthStatus === 'HEALTHY') {
-          return <Badge status="success" text="HEALTHY"/>;
-        }
-        return <Badge status="error" text="UNHEALTHY"/>;
-      }
-    },
     {
       title: 'Priority',
       dataIndex: 'priority',
       hideInSearch: true,
-    },*/
+    },
     {
       title: 'Note',
       dataIndex: 'description',
@@ -105,20 +112,34 @@ const ModelList: React.FC = () => {
       sorter: false,
       hideInForm: true,
       render: (_, record) => [
-        /*<a
+        <a
+            key="view"
+            onClick={async () => {
+              getProviderKeyValue({providerKeyId: record.providerKeyId})
+              .then((it) => {
+                modal.info({
+                  title: 'Provider Key',
+                  content: <Paragraph copyable={{text: it.key}}>{it.key}</Paragraph>,
+                })
+              });
+            }}
+        >
+          View Key
+        </a>,
+        <a
             key="edit"
             onClick={async () => {
               setSelectedData(record);
-              setFormMode('create');
+              setFormMode('edit');
               setModelOpen(true);
             }}
         >
           Edit
-        </a>,*/
+        </a>,
         <a
             key="delete"
             onClick={() => {
-              doDelete([record.virtualModelId]);
+              doDelete([record.providerKeyId]);
             }}
         >
           Delete
@@ -128,13 +149,13 @@ const ModelList: React.FC = () => {
   ];
 
   function doDelete(ids: string[]) {
-    if (!selectedRowsState || selectedRowsState.length == 0) {
+    if (!ids || ids.length == 0) {
       return;
     }
     modal.confirm({
       title: 'Confirm',
       content: 'Are you sure you want to delete this?',
-      onOk: () => batchDelete({
+      onOk: () => batchDeleteProviderKey({
         ids
       }).then(res => {
         message.success('Deleted successfully');
@@ -148,14 +169,45 @@ const ModelList: React.FC = () => {
   }
 
   return (
-      <PageContainer title={false}>
-        <ProTable<API.VirtualModelResponse, any>
-            headerTitle='Models'
+      <PageContainer title={false}
+        header={{
+          footer: <Card>
+            <Space>
+              <Select
+                  placeholder="Provider"
+                  style={{width: 300}}
+                  loading={providerLoading}
+                  defaultActiveFirstOption
+                  value={providerId}
+                  onSelect={(value, option) => {
+                    if (value === 'All') {
+                      setProviderId(null);
+                      history.replace(`/ai-service/keys`);
+                    } else {
+                      setProviderId(value);
+                      history.replace(`/ai-service/keys?providerId=${value}`);
+                    }
+                  }}
+                  options={
+                    [{value: 'All', label: 'All'},
+                      ...(providers ?? [])
+                      .map((item) => ({label: item.name, value: item.providerId}))
+                    ]
+                  }
+              >
+              </Select>
+            </Space>
+          </Card>
+        }}
+      >
+        <ProTable<API.ProviderKeyResponse, any>
+            headerTitle='Keys'
             actionRef={actionRef}
-            rowKey="virtualModelId"
-            search={false}
+            rowKey="providerKeyId"
             request={requestTableData}
             columns={columns}
+            search={false}
+            params={{providerId: providerId}}
             toolBarRender={() => [
               <Button
                   type="primary"
@@ -188,23 +240,31 @@ const ModelList: React.FC = () => {
                   color="danger"
                   variant="solid"
                   onClick={() => {
-                    doDelete(selectedRowsState.map(it => it.virtualModelId!));
+                    doDelete(selectedRowsState.map(it => it.providerKeyId!));
                   }}
               >
                 Batch deletion
               </Button>
             </FooterToolbar>
         )}
-        <ModalForm
+        <ProviderKeyModalForm
             open={modelOpen}
             mode={formMode}
             initialValues={selectedData}
             onSubmit={(values) => {
-              return createModel(values)
-              .then(it => {
-                setModelOpen(false);
-                actionRef.current?.reload();
-              });
+              if (formMode === 'create') {
+                return createProviderKey(values)
+                .then(it => {
+                  setModelOpen(false);
+                  actionRef.current?.reload();
+                });
+              } else {
+                return patchProviderKey({providerKeyId: selectedData?.providerKeyId!}, values)
+                .then(it => {
+                  setModelOpen(false);
+                  actionRef.current?.reload();
+                });
+              }
             }}
             onCancel={() => setModelOpen(false)}
         />
@@ -212,4 +272,4 @@ const ModelList: React.FC = () => {
   );
 };
 
-export default ModelList;
+export default ProviderKeyList;

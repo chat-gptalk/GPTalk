@@ -1,14 +1,23 @@
+// @ts-ignore
 import {FormattedMessage, useIntl} from '@umijs/max';
 import {Alert, DatePicker, Form, FormInstance, Input, Modal, Select, Switch, TreeSelect} from 'antd';
 import React, {useRef, useState} from 'react';
-import {getModelFeatures} from '@/services/console/modelController';
+import {getModelFeatures} from '@/services/console/configController';
 import {useRequest} from "ahooks";
+import {getProviders} from "@/services/console/providerController";
 
-const ModalForm: React.FC<Base.FormModelProps<API.ModelResponse>> = (props) => {
+const ModelModalForm: React.FC<Base.FormModelProps<API.ModelResponse, API.CreateModelRequest>> = (props) => {
   const intl = useIntl();
   const [formRef] = Form.useForm();
   const [error, setError] = useState<Base.ProblemDetail>();
   const {data: features} = useRequest(() => getModelFeatures());
+
+  const {data: providers, loading: providerLoading} = useRequest(() => getProviders().then(it => {
+    if (it.length > 0) {
+      formRef.setFieldValue('providerId', it[0].providerId)
+    }
+    return it;
+  }));
   return (
       <Modal
           width={640}
@@ -23,6 +32,7 @@ const ModalForm: React.FC<Base.FormModelProps<API.ModelResponse>> = (props) => {
           }}
           onOk={async () => {
             const values = await formRef.validateFields();
+            setError(undefined);
             return await props.onSubmit(values).catch(err => {
               setError(err);
             });
@@ -47,12 +57,28 @@ const ModalForm: React.FC<Base.FormModelProps<API.ModelResponse>> = (props) => {
               span: 18
             }}
             initialValues={props.initialValues
-                ? props.initialValues
+                ? {...props.initialValues, providerId: props.initialValues.provider?.providerId}
                 : {
+                  enabled: true,
                   sdkClientClass: 'openai'
                 }
             }
             clearOnDestroy>
+
+          <Form.Item name="providerId" label="Provider" rules={[
+            {
+              required: true,
+            }
+          ]}>
+            <Select
+                disabled={props.mode == 'edit'}
+                loading={providerLoading}
+                options={(providers ?? []).map(it => ({
+                  value: it.providerId,
+                  label: it.name,
+                }))}/>
+          </Form.Item>
+
           <Form.Item name="name" label="Name" rules={[
             {
               required: true
@@ -63,6 +89,14 @@ const ModalForm: React.FC<Base.FormModelProps<API.ModelResponse>> = (props) => {
             },
           ]}>
             <Input/>
+          </Form.Item>
+
+          <Form.Item name="enabled" label="Enabled" rules={[
+            {
+              required: true
+            },
+          ]}>
+            <Switch/>
           </Form.Item>
 
           <Form.Item name="features" label="Features" rules={[
@@ -82,4 +116,4 @@ const ModalForm: React.FC<Base.FormModelProps<API.ModelResponse>> = (props) => {
   );
 };
 
-export default ModalForm;
+export default ModelModalForm;

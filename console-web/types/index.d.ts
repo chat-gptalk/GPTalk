@@ -1,11 +1,11 @@
 declare namespace Base {
   type FormMode = 'create' | 'edit';
 
-  type FormModelProps<T> = {
+  type FormModelProps<T, R> = {
     open: boolean;
     mode: FormMode;
     initialValues?: Partial<T>;
-    onSubmit: (values: T) => Promise<any>;
+    onSubmit: (values: R) => Promise<any>;
     onCancel: () => void;
   }
 

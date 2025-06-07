@@ -1,6 +1,7 @@
 package chat.gptalk.auth.service;
 
 import chat.gptalk.auth.model.request.CreateVirtualModelRequest;
+import chat.gptalk.auth.model.request.PatchVirtualModelRequest;
 import chat.gptalk.auth.model.response.ModelResponse;
 import chat.gptalk.auth.model.response.VirtualModelResponse;
 import chat.gptalk.auth.repository.VirtualModelMappingRepository;
@@ -9,6 +10,7 @@ import chat.gptalk.auth.util.SecurityUtils;
 import chat.gptalk.common.entity.VirtualModelEntity;
 import chat.gptalk.common.entity.VirtualModelMappingEntity;
 import chat.gptalk.common.exception.DataConflictException;
+import chat.gptalk.common.exception.ForbiddenException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
@@ -88,6 +90,7 @@ public class VirtualModelService {
             .virtualModelId(entity.virtualModelId())
             .enabled(entity.enabled())
             .models(mappings)
+            .description(entity.description())
             .createdAt(entity.createdAt())
             .updatedAt(entity.updatedAt())
             .build();
@@ -95,13 +98,40 @@ public class VirtualModelService {
 
     @Transactional
     public void batchDelete(@NotNull String[] ids) {
-        virtualModelRepository.deleteByVirtualModelIdIn(Arrays.stream(ids).map(UUID::fromString).toList());
+        virtualModelRepository.deleteByTenantIdAndVirtualModelIdIn(SecurityUtils.getTenantId(),
+            Arrays.stream(ids).map(UUID::fromString).toList());
     }
 
-    public boolean hasPermissions(@NotNull String[] ids) {
-        List<VirtualModelEntity> results = virtualModelRepository.findAllByTenantIdAndVirtualModelIdIn(
-            SecurityUtils.getTenantId(),
-            Arrays.stream(ids).map(UUID::fromString).toList());
-        return results.size() == ids.length;
+    @Transactional
+    public VirtualModelResponse patchVirtualModel(String virtualModelId,
+        @Valid PatchVirtualModelRequest patchVirtualModelRequest) {
+        VirtualModelEntity entity = virtualModelRepository.findAllByTenantIdAndVirtualModelId(
+            SecurityUtils.getTenantId(), UUID.fromString(virtualModelId));
+        if (patchVirtualModelRequest.name() != null) {
+            entity = entity.withName(patchVirtualModelRequest.name());
+        }
+        if (patchVirtualModelRequest.description() != null) {
+            entity = entity.withDescription(patchVirtualModelRequest.description());
+        }
+        if (patchVirtualModelRequest.modelIds() != null) {
+            boolean hasPermissions = modelService.hasPermissions(patchVirtualModelRequest.modelIds());
+            if (!hasPermissions) {
+                throw new ForbiddenException();
+            }
+            virtualModelMappingRepository.deleteByModelId(UUID.fromString(virtualModelId));
+            List<VirtualModelMappingEntity> mappings = patchVirtualModelRequest.modelIds().stream()
+                .map(modelId -> VirtualModelMappingEntity.builder()
+                    .modelId(UUID.fromString(modelId))
+                    .virtualModelId(UUID.fromString(virtualModelId))
+                    .userId(SecurityUtils.getCurrentUser().userId())
+                    .tenantId(SecurityUtils.getTenantId())
+                    .weight(0)
+                    .priority(0)
+                    .build())
+                .toList();
+            virtualModelMappingRepository.saveAll(mappings);
+        }
+        virtualModelRepository.save(entity);
+        return mapToResponse(entity);
     }
 }

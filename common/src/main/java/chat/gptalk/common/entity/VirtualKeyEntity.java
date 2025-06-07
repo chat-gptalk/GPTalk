@@ -2,22 +2,28 @@ package chat.gptalk.common.entity;
 
 
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
+import lombok.Builder;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.relational.core.mapping.Table;
 
-@Table(name = "llm_keys")
-public record LlmKeyEntity(
+@Table(name = "virtual_keys")
+@Builder
+public record VirtualKeyEntity(
     @Id
     Integer id,
     UUID userId,
     UUID tenantId,
-    UUID llmKeyId,
-    UUID providerId,
-    String llmKey,
+    UUID virtualKeyId,
+    String keyHash,
     String name,
-    Integer priority,
-    Boolean active,
+    List<String> allowedModels,
+    Integer status,
+    OffsetDateTime expireAt,
     OffsetDateTime createdAt,
     OffsetDateTime updatedAt
-) {}
+) {
+
+}
+

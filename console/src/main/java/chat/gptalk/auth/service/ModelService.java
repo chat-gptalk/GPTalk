@@ -17,6 +17,8 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,9 +29,11 @@ public class ModelService {
     private final ModelRepository modelRepository;
     private final ProviderService providerService;
 
-    public List<ModelResponse> getModels() {
-        return modelRepository.findByTenantId(SecurityUtils.getTenantId())
+    public List<ModelResponse> getModels(String providerId, String status) {
+        return modelRepository.findByTenantId(SecurityUtils.getTenantId(), Sort.by(Order.desc("id")))
             .stream()
+            .filter(it -> providerId == null || it.providerId().toString().equals(providerId))
+            .filter(it -> status == null || it.status().equals(status))
             .map(this::mapToResponse)
             .toList();
     }
@@ -68,17 +72,17 @@ public class ModelService {
 
     public ModelResponse createModel(@Valid CreateModelRequest createRequest) {
         if (modelRepository.existsByTenantIdAndName(SecurityUtils.getTenantId(), createRequest.name())) {
-            throw new DataConflictException("The provider already exists");
+            throw new DataConflictException("The model already exists");
         }
         LlmModelEntity modelEntity = LlmModelEntity.builder()
             .modelId(UUID.randomUUID())
             .providerId(UUID.fromString(createRequest.providerId()))
             .name(createRequest.name())
             .features(createRequest.features().stream().map(Enum::name).collect(Collectors.toList()))
-            .enabled(true)
+            .enabled(createRequest.enabled())
             .contextLength(0)
             .maxOutputTokens(0)
-            .status(ModelStatus.HEALTHY.name())
+            .status(ModelStatus.PENDING.name())
             .userId(SecurityUtils.getCurrentUser().userId())
             .tenantId(SecurityUtils.getTenantId())
             .createdAt(OffsetDateTime.now())
@@ -94,7 +98,7 @@ public class ModelService {
             SecurityUtils.getTenantId(), Arrays.stream(ids).map(UUID::fromString).toList());
     }
 
-    public ModelResponse patchProviderModel(String modelId,
+    public ModelResponse patchModel(String modelId,
         @Valid PatchModelRequest patchRequest) {
         LlmModelEntity modelEntity = modelRepository.findOneByTenantIdAndModelId(
             SecurityUtils.getTenantId(), UUID.fromString(modelId));
@@ -114,5 +118,10 @@ public class ModelService {
         }
         modelRepository.save(modelEntity);
         return mapToResponse(modelEntity);
+    }
+
+    public boolean hasPermissions(List<String> ids) {
+        return modelRepository.countByTenantIdAndModelIdIn(SecurityUtils.getTenantId(),
+            ids.stream().map(UUID::fromString).toList()).equals(ids.size());
     }
 }

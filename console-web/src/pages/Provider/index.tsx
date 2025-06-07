@@ -6,7 +6,7 @@ import {
 } from '@ant-design/icons';
 import {PageContainer} from '@ant-design/pro-components';
 import {useIntl, history} from '@umijs/max';
-import {App, Avatar, Badge, Button, Card, Descriptions, Dropdown, List, MenuProps} from 'antd';
+import {App, Avatar, Badge, Button, Card, ConfigProvider, Descriptions, Dropdown, List, MenuProps} from 'antd';
 import {createProvider, getProviders, batchDeleteProvider} from '@/services/console/providerController';
 import React, {useState} from 'react';
 import {useRequest} from "ahooks";
@@ -39,8 +39,12 @@ const AIService: React.FC = () => {
 
   function getActions(item: Partial<API.ProviderResponse>) {
     const actions = [
-      <Button type="link" href={`/ai-service/providers/${item.providerId}/models`}>Models</Button>,
-      <Button type="link" href={`/ai-service/providers/${item.providerId}/keys`}>Keys</Button>,
+      <Button
+          type="text"
+          onClick={() => history.push(`/ai-service/models?providerId=${item.providerId}`)}>Models</Button>,
+      <Button
+          type="text"
+          onClick={() => history.push(`/ai-service/keys?providerId=${item.providerId}`)}>Keys</Button>,
     ];
     if (!item.system) {
       const items: MenuProps['items'] = [
@@ -80,100 +84,106 @@ const AIService: React.FC = () => {
   }
 
   return (
-      <PageContainer
-          content="AI Service"
+      <ConfigProvider
+          theme={{
+            components: {
+              Descriptions: {
+                itemPaddingBottom: 0
+              }
+            },
+          }}
       >
-        <List<Partial<API.ProviderResponse>>
-            rowKey="providerId"
-            loading={loading}
-            grid={{
-              gutter: 16,
-              xs: 1,
-              sm: 2,
-              md: 3,
-              lg: 3,
-              xl: 4,
-              xxl: 4,
-            }}
-            dataSource={[nullData, ...providers]}
-            renderItem={(item) => {
-              if (item && item.providerId) {
+        <PageContainer title={false}>
+          <List<Partial<API.ProviderResponse>>
+              rowKey="providerId"
+              loading={loading}
+              grid={{
+                gutter: 16,
+                xs: 1,
+                sm: 2,
+                md: 3,
+                lg: 3,
+                xl: 4,
+                xxl: 4,
+              }}
+              dataSource={[nullData, ...providers]}
+              renderItem={(item) => {
+                if (item && item.providerId) {
+                  return (
+                      <List.Item key={item.providerId}>
+                        <Badge.Ribbon text={item.system ? 'System' : 'Custom'}
+                                      color={item.system ? '#00BF6D' : '#1677ff'}>
+                          <Card
+                              hoverable
+                              className={styles.card}
+                              actions={getActions(item)}
+                          >
+                            <Card.Meta
+                                avatar={
+                                  item.extraConfig?.icon
+                                      ? <img alt="" className={styles.cardAvatar} src={item.extraConfig?.icon ?? ''}/>
+                                      : <Avatar size="large" style={{
+                                        backgroundColor: Colors[hashCode(item.name!) % Colors.length],
+                                        color: '#fff'
+                                      }}>{item.name!.charAt(0)}</Avatar>
+                                }
+                                title={<a>{item.name}</a>}
+                                description={
+                                  <>
+                                    <Descriptions layout="horizontal" column={1}>
+                                      <Descriptions.Item label="SDK Client">{item.sdkClientClass}</Descriptions.Item>
+                                      <Descriptions.Item label="Model Count">{item.modelCount}</Descriptions.Item>
+                                    </Descriptions>
+                                  </>
+                                }
+                            />
+
+                            <div style={{padding: 16}}>
+                              <Paragraph
+                                  className={styles.item}
+                                  ellipsis={{
+                                    rows: 3,
+                                  }}
+                              >
+                                {item.description}
+                              </Paragraph>
+                            </div>
+                          </Card>
+                        </Badge.Ribbon>
+                      </List.Item>
+                  );
+                }
                 return (
-                    <List.Item key={item.providerId}>
-                      <Badge.Ribbon text={item.system ? 'System' : 'Custom'}
-                                    color={item.system ? '#00BF6D' : '#1677ff'}>
-                        <Card
-                            hoverable
-                            className={styles.card}
-                            actions={getActions(item)}
-                            onClick={() => {
-                              history.push(`/ai-service/providers/${item.providerId}/models`);
-                            }}
-                        >
-                          <Card.Meta
-                              avatar={
-                                item.extraConfig?.icon
-                                    ? <img alt="" className={styles.cardAvatar} src={item.extraConfig?.icon ?? ''}/>
-                                    : <Avatar size="large" style={{
-                                      backgroundColor: Colors[hashCode(item.name!) % Colors.length],
-                                      color: '#fff'
-                                    }}>{item.name!.charAt(0)}</Avatar>
-                              }
-                              title={<a>{item.name}</a>}
-                              description={
-                                <>
-                                  <Descriptions layout="horizontal" column={1}>
-                                    <Descriptions.Item label="SDK Client">{item.sdkClientClass}</Descriptions.Item>
-                                    <Descriptions.Item label="Model Count">{item.modelCount}</Descriptions.Item>
-                                    <Descriptions.Item label="">
-                                      <Paragraph
-                                          className={styles.item}
-                                          ellipsis={{
-                                            rows: 3,
-                                          }}
-                                      >
-                                        {item.description}
-                                      </Paragraph>
-                                    </Descriptions.Item>
-                                  </Descriptions>
-                                </>
-                              }
-                          />
-                        </Card>
-                      </Badge.Ribbon>
+                    <List.Item>
+                      <Button
+                          type="dashed"
+                          className={styles.newButton}
+                          onClick={() => {
+                            setModelOpen(true);
+                          }}
+                      >
+                        <PlusOutlined/>New
+                      </Button>
                     </List.Item>
                 );
-              }
-              return (
-                  <List.Item>
-                    <Button
-                        type="dashed"
-                        className={styles.newButton}
-                        onClick={() => {
-                          setModelOpen(true);
-                        }}
-                    >
-                      <PlusOutlined/>New
-                    </Button>
-                  </List.Item>
-              );
-            }}
-        />
-        <ModalForm
-            open={modelOpen}
-            mode={formMode}
-            initialValues={selectedData}
-            onSubmit={(values) => {
-              return createProvider(values)
-              .then(it => {
-                setModelOpen(false);
-                refresh();
-              });
-            }}
-            onCancel={() => setModelOpen(false)}
-        />
+              }}
+          />
+          <ModalForm
+              open={modelOpen}
+              mode={formMode}
+              initialValues={selectedData}
+              onSubmit={(values) => {
+                return createProvider(values)
+                .then(it => {
+                  setModelOpen(false);
+                  refresh();
+                });
+              }}
+              onCancel={() => setModelOpen(false)}
+          />
 
-      </PageContainer>
+        </PageContainer>
+      </ConfigProvider>
   );
 };
 

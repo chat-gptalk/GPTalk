@@ -23,12 +23,12 @@ create table users
     updated_at   timestamptz not null        default current_timestamp
 );
 
-create table api_keys
+create table virtual_keys
 (
     id             serial primary key,
     user_id        uuid        not null,
     tenant_id      uuid        not null,
-    api_key_id     uuid        not null unique default gen_random_uuid(),
+    virtual_key_id uuid        not null unique default gen_random_uuid(),
     key_hash       text        not null,
     name           text        not null,
     allowed_models text[],
@@ -80,19 +80,20 @@ create table llm_providers
     updated_at       timestamptz not null        default now()
 );
 
-create table llm_keys
+create table llm_provider_keys
 (
-    id          serial primary key,
-    user_id     uuid        not null,
-    tenant_id   uuid        not null,
-    llm_key_id  uuid        not null unique default gen_random_uuid(),
-    provider_id uuid        not null,
-    llm_key     text        not null,
-    name        text        not null unique,
-    priority    integer     not null        default 0,
-    active      boolean     not null        default true,
-    created_at  timestamptz not null        default now(),
-    updated_at  timestamptz not null        default now()
+    id              serial primary key,
+    user_id         uuid        not null,
+    tenant_id       uuid        not null,
+    provider_key_id uuid        not null unique default gen_random_uuid(),
+    provider_id     uuid        not null,
+    key_enc         text        not null,
+    name            text        not null unique,
+    priority        integer     not null        default 0,
+    enabled         boolean     not null        default true,
+    description     text,
+    created_at      timestamptz not null        default now(),
+    updated_at      timestamptz not null        default now()
 );
 
 create table llm_models
