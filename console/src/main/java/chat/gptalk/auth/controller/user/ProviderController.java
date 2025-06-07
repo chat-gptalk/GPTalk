@@ -51,7 +51,7 @@ public class ProviderController {
     @Operation(operationId = "batchDeleteProvider")
     @DeleteMapping
     @PreAuthorize("@providerService.hasPermissions(#batchDeleteRequest.ids())")
-    public void batchDelete(@RequestBody BatchDeleteRequest batchDeleteRequest) {
+    public void batchDelete(@RequestBody @Valid BatchDeleteRequest batchDeleteRequest) {
         providerService.batchDelete(batchDeleteRequest.ids());
     }
 

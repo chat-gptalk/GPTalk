@@ -3,7 +3,7 @@ import {Alert, DatePicker, Form, FormInstance, Input, Modal, Select, Switch, Tre
 import React, {useRef, useState} from 'react';
 
 
-const ModalForm: React.FC<Base.FormModelProps<API.ProviderResponse>> = (props) => {
+const ModalForm: React.FC<Base.FormModelProps<API.ProviderResponse, API.CreateProviderRequest>> = (props) => {
   const intl = useIntl();
   const [formRef] = Form.useForm();
   const [error, setError] = useState<Base.ProblemDetail>();
@@ -21,6 +21,7 @@ const ModalForm: React.FC<Base.FormModelProps<API.ProviderResponse>> = (props) =
           }}
           onOk={async () => {
             const values = await formRef.validateFields();
+            setError(undefined);
             return await props.onSubmit(values).catch(err => {
               setError(err);
             });

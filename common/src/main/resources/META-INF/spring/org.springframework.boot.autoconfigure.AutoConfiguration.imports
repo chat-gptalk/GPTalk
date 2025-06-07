@@ -1,4 +1,5 @@
 chat.gptalk.common.config.MessageConfig
+chat.gptalk.common.config.CryptoConfig
 chat.gptalk.common.util.MessageUtils
 chat.gptalk.common.util.SpringUtils
 chat.gptalk.common.util.BeanMapperUtils

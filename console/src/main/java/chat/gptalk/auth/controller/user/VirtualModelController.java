@@ -1,6 +1,7 @@
 package chat.gptalk.auth.controller.user;
 
 import chat.gptalk.auth.model.request.CreateVirtualModelRequest;
+import chat.gptalk.auth.model.request.PatchVirtualModelRequest;
 import chat.gptalk.auth.model.response.VirtualModelResponse;
 import chat.gptalk.auth.service.VirtualModelService;
 import chat.gptalk.common.model.request.BatchDeleteRequest;
@@ -8,9 +9,10 @@ import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,12 +33,18 @@ public class VirtualModelController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public VirtualModelResponse createVirtualModel(@Valid @RequestBody CreateVirtualModelRequest createVirtualModelRequest) {
+    public VirtualModelResponse createVirtualModel(
+        @Valid @RequestBody CreateVirtualModelRequest createVirtualModelRequest) {
         return virtualModelService.createModel(createVirtualModelRequest);
     }
 
+    @PatchMapping("{virtualModelId}")
+    public VirtualModelResponse patchVirtualModel(@PathVariable String virtualModelId,
+        @Valid @RequestBody PatchVirtualModelRequest patchVirtualModelRequest) {
+        return virtualModelService.patchVirtualModel(virtualModelId, patchVirtualModelRequest);
+    }
+
     @DeleteMapping
-    @PreAuthorize("@virtualModelService.hasPermissions(#batchDeleteRequest.ids())")
     public void batchDeleteVirtualModel(@RequestBody BatchDeleteRequest batchDeleteRequest) {
         virtualModelService.batchDelete(batchDeleteRequest.ids());
     }

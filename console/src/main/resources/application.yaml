@@ -62,3 +62,8 @@ gptalk:
         61ljQyFe6la0krGrVX5szRGidghzauOCZUXVDzsphLL38hCRq6bS7r+Saj9RG+Ka
         wQIDAQAB
         -----END PUBLIC KEY-----
+  crypto:
+    enabled: true
+    type: "AES"
+    aes:
+      secret: "${SECRET}"

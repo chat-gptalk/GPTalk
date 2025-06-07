@@ -4,10 +4,12 @@ import chat.gptalk.auth.model.request.CreateProviderRequest;
 import chat.gptalk.auth.model.response.ProviderResponse;
 import chat.gptalk.auth.model.response.TreeNode;
 import chat.gptalk.auth.repository.ModelRepository;
+import chat.gptalk.auth.repository.ProviderKeyRepository;
 import chat.gptalk.auth.repository.ProviderRepository;
 import chat.gptalk.auth.util.SecurityUtils;
 import chat.gptalk.common.entity.LlmModelEntity;
 import chat.gptalk.common.entity.LlmProviderEntity;
+import chat.gptalk.common.exception.BadRequestException;
 import chat.gptalk.common.exception.DataConflictException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProviderService {
 
     private final ModelRepository modelRepository;
+    private final ProviderKeyRepository providerKeyRepository;
     private final ProviderRepository providerRepository;
 
     public List<ProviderResponse> getCurrentTenantProviders() {
@@ -73,7 +76,7 @@ public class ProviderService {
                 .selectable(false)
                 .build());
         });
-        return treeNodes;
+        return treeNodes.stream().filter(it -> !it.children().isEmpty()).toList();
     }
 
     private List<TreeNode> buildModelTree(List<LlmModelEntity> models) {
@@ -123,7 +126,19 @@ public class ProviderService {
 
     @Transactional
     public void batchDelete(@NotNull String[] ids) {
-        providerRepository.deleteByProviderIdIn(Arrays.stream(ids).map(UUID::fromString).toList());
+        List<UUID> uids = Arrays.stream(ids).map(UUID::fromString).toList();
+        Integer usedModelCount = modelRepository.countByTenantIdAndProviderIdIn(SecurityUtils.getTenantId(), uids);
+        if (usedModelCount > 0) {
+            throw new BadRequestException(
+                "This provider is associated with one or more models. Please remove those models before deleting the provider.");
+        }
+        Integer usedProviderKeyCount = providerKeyRepository.countByTenantIdAndProviderIdIn(SecurityUtils.getTenantId(),
+            uids);
+        if (usedProviderKeyCount > 0) {
+            throw new BadRequestException(
+                "This provider has associated keys. Please delete the keys before proceeding.");
+        }
+        providerRepository.deleteByProviderIdIn(uids);
     }
 
     public ProviderResponse getProvider(String providerId) {

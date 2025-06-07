@@ -10,4 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface VirtualModelMappingRepository extends CrudRepository<VirtualModelMappingEntity, Integer> {
 
     List<VirtualModelMappingEntity> findByVirtualModelId(UUID virtualModelId);
+
+    void deleteByModelId(UUID virtualModelId);
 }

@@ -29,11 +29,21 @@ export default [
     component: './Welcome',
   },
   {
-    path: '/virtual-models',
+    path: '/virtual-model',
     name: 'virtual-model',
     icon: 'crown',
-    access: 'canAdmin',
-    component: './VirtualModel',
+    routes: [
+      {
+        path: '/virtual-model/models',
+        name: 'model',
+        component: './VirtualModel',
+      },
+      {
+        path: '/virtual-model/keys',
+        name: 'key',
+        component: './VirtualKey',
+      },
+    ],
   },
   {
     path: '/ai-service',
@@ -50,6 +60,11 @@ export default [
         path: '/ai-service/keys',
         name: 'key',
         component: './Key',
+      },
+      {
+        path: '/ai-service/providers',
+        name: 'provider',
+        component: './Provider',
       },
     ],
   },

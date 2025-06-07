@@ -4,11 +4,8 @@ import chat.gptalk.auth.model.request.CreateModelRequest;
 import chat.gptalk.auth.model.request.PatchModelRequest;
 import chat.gptalk.auth.model.response.ModelResponse;
 import chat.gptalk.auth.service.ModelService;
-import chat.gptalk.common.constants.ModelFeature;
 import chat.gptalk.common.model.request.BatchDeleteRequest;
-import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
-import java.util.Arrays;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -28,32 +26,26 @@ public class ModelController {
 
     private final ModelService modelService;
 
-    @GetMapping("features")
-    public List<ModelFeature> getModelFeatures() {
-        return Arrays.stream(ModelFeature.values()).toList();
-    }
-
     @GetMapping
-    public List<ModelResponse> getModels() {
-        return modelService.getModels();
+    public List<ModelResponse> getModels(@RequestParam(required = false) String providerId, @RequestParam(required = false) String status) {
+        return modelService.getModels(providerId, status);
     }
 
     @PostMapping
     @PreAuthorize("@providerService.hasPermission(#createRequest.providerId())")
-    public ModelResponse createProviderModel(@RequestBody @Valid CreateModelRequest createRequest) {
+    public ModelResponse createModel(@RequestBody @Valid CreateModelRequest createRequest) {
         return modelService.createModel(createRequest);
     }
 
     @PatchMapping("{modelId}")
-    public ModelResponse patchProviderModel(
+    public ModelResponse patchModel(
         @PathVariable("modelId") String modelId,
         @RequestBody @Valid PatchModelRequest patchRequest) {
-        return modelService.patchProviderModel(modelId, patchRequest);
+        return modelService.patchModel(modelId, patchRequest);
     }
 
-    @Operation(operationId = "batchDeleteProviderModel")
     @DeleteMapping
-    public void batchDeleteProviderModel(@RequestBody BatchDeleteRequest batchDeleteRequest) {
+    public void batchDeleteModel(@RequestBody @Valid BatchDeleteRequest batchDeleteRequest) {
         modelService.batchDelete(batchDeleteRequest.ids());
     }
 }

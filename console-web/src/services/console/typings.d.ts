@@ -10,26 +10,10 @@ declare namespace API {
     roles?: string[];
   };
 
-  type CreateKeyRequest = {
-    name: string;
-  };
-
-  type CreateKeyResponse = {
-    apiKeyId: string;
-    key: string;
-    name: string;
-    userId: string;
-    tenantId: string;
-    allowedModels?: string[];
-    status: number;
-    expireAt?: string;
-    createdAt: string;
-    updatedAt: string;
-  };
-
   type CreateModelRequest = {
     name: string;
     providerId: string;
+    enabled: boolean;
     features: (
       | 'CHAT'
       | 'COMPLETION'
@@ -45,6 +29,15 @@ declare namespace API {
     )[];
   };
 
+  type CreateProviderKeyRequest = {
+    name: string;
+    providerId: string;
+    priority: number;
+    key: string;
+    description?: string;
+    enabled: boolean;
+  };
+
   type CreateProviderRequest = {
     name: string;
     baseUrl: string;
@@ -53,10 +46,27 @@ declare namespace API {
     extraConfig?: Record<string, any>;
   };
 
+  type CreateVirtualKeyRequest = {
+    name: string;
+  };
+
   type CreateVirtualModelRequest = {
     name?: string;
     description?: string;
     modelIds?: string[];
+  };
+
+  type getModelsParams = {
+    providerId?: string;
+    status?: string;
+  };
+
+  type getProviderKeysParams = {
+    providerId?: string;
+  };
+
+  type getProviderKeyValueParams = {
+    providerKeyId: string;
   };
 
   type getProviderModelsParams = {
@@ -106,6 +116,7 @@ declare namespace API {
     contextLength: number;
     status:
       | 'HEALTHY'
+      | 'PENDING'
       | 'AUTH_FAILED'
       | 'RATE_LIMITED'
       | 'INVALID_CONFIG'
@@ -116,6 +127,10 @@ declare namespace API {
     defaultParams?: Record<string, any>;
     createdAt: string;
     updatedAt: string;
+  };
+
+  type patchModelParams = {
+    modelId: string;
   };
 
   type PatchModelRequest = {
@@ -136,8 +151,41 @@ declare namespace API {
     enabled?: boolean;
   };
 
-  type patchProviderModelParams = {
-    modelId: string;
+  type patchProviderKeyParams = {
+    providerKeyId: string;
+  };
+
+  type PatchProviderKeyRequest = {
+    name?: string;
+    key?: string;
+    priority: number;
+    description?: string;
+    enabled?: boolean;
+  };
+
+  type patchVirtualModelParams = {
+    virtualModelId: string;
+  };
+
+  type PatchVirtualModelRequest = {
+    name?: string;
+    description?: string;
+    modelIds?: string[];
+  };
+
+  type ProviderKeyResponse = {
+    providerKeyId: string;
+    provider: ProviderResponse;
+    name: string;
+    description?: string;
+    priority: number;
+    enabled: boolean;
+    createdAt: string;
+    updatedAt: string;
+  };
+
+  type ProviderKeyValueResponse = {
+    key: string;
   };
 
   type ProviderResponse = {
@@ -177,10 +225,22 @@ declare namespace API {
     children: any[];
   };
 
+  type VirtualKeyResponse = {
+    virtualKeyId: string;
+    key: string;
+    name: string;
+    allowedModels?: string[];
+    status: number;
+    expireAt?: string;
+    createdAt: string;
+    updatedAt: string;
+  };
+
   type VirtualModelResponse = {
     name: string;
     virtualModelId: string;
     enabled: boolean;
+    description?: string;
     models: MappedModelResponse[];
     createdAt: string;
     updatedAt: string;

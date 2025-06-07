@@ -5,9 +5,7 @@ import chat.gptalk.common.crypto.CryptoProvider;
 import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import org.springframework.stereotype.Component;
 
-@Component
 public class AesCryptoProvider implements CryptoProvider {
 
     private static final String ALGORITHM = "AES";

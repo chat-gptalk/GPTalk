@@ -11,6 +11,7 @@ public record VirtualModelResponse(
     @NotNull String name,
     @NotNull UUID virtualModelId,
     @NotNull Boolean enabled,
+    String description,
     @NotNull List<MappedModelResponse> models,
     @NotNull OffsetDateTime createdAt,
     @NotNull OffsetDateTime updatedAt

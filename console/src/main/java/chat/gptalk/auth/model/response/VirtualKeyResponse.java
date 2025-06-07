@@ -4,15 +4,15 @@ import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
+import lombok.Builder;
 import lombok.With;
 
 @With
-public record CreateKeyResponse(
-    @NotNull UUID apiKeyId,
+@Builder
+public record VirtualKeyResponse(
+    @NotNull UUID virtualKeyId,
     @NotNull String key,
     @NotNull String name,
-    @NotNull UUID userId,
-    @NotNull UUID tenantId,
     List<String> allowedModels,
     @NotNull Integer status,
     OffsetDateTime expireAt,

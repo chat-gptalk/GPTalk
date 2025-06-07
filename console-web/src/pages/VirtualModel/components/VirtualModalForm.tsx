@@ -1,15 +1,14 @@
 import {FormattedMessage, useIntl} from '@umijs/max';
-import {DatePicker, Form, FormInstance, Input, Modal, Select, Switch, TreeSelect} from 'antd';
+import {Alert, DatePicker, Form, FormInstance, Input, Modal, Select, Switch, TreeSelect} from 'antd';
 import React, {useRef, useState} from 'react';
 import {getProviderTree, getProviderModels} from '@/services/console/providerController';
-import {createModel} from '@/services/console/virtualModelController';
-import dayjs from "dayjs";
 import {useRequest} from "ahooks";
 
 
-const ModalForm: React.FC<Base.FormModelProps<API.VirtualModelResponse>> = (props) => {
+const VirtualModalForm: React.FC<Base.FormModelProps<API.VirtualModelResponse, API.CreateVirtualModelRequest>> = (props) => {
   const intl = useIntl();
   const [formRef] = Form.useForm();
+  const [error, setError] = useState<Base.ProblemDetail>();
   const {data: models, loading: modelLoading} = useRequest(async (): Promise<API.TreeNode[]> => {
     return getProviderTree();
   });
@@ -27,9 +26,23 @@ const ModalForm: React.FC<Base.FormModelProps<API.VirtualModelResponse>> = (prop
           }}
           onOk={async () => {
             const values = await formRef.validateFields();
-            return await props.onSubmit(values);
+            setError(undefined);
+            return await props.onSubmit({...values, name: `vm:${values.name}`})
+            .catch(err => {
+              setError(err)
+            });
           }}
       >
+        {
+            error && <Alert
+                style={{
+                  marginBottom: 24,
+                }}
+                message={error.detail}
+                type="error"
+                showIcon
+            />
+        }
         <Form
             form={formRef}
             labelCol={{
@@ -41,7 +54,7 @@ const ModalForm: React.FC<Base.FormModelProps<API.VirtualModelResponse>> = (prop
             initialValues={props.initialValues
                 ? {
                   ...props.initialValues,
-                  name: props.initialValues.name?.substring(4),
+                  name: props.initialValues.name?.substring(3),
                   modelIds: props.initialValues.models?.map(model => model.model?.modelId),
                 }
                 : undefined
@@ -92,4 +105,4 @@ const ModalForm: React.FC<Base.FormModelProps<API.VirtualModelResponse>> = (prop
   );
 };
 
-export default ModalForm;
+export default VirtualModalForm;

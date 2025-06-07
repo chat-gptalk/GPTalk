@@ -15,7 +15,9 @@ public interface VirtualModelRepository extends CrudRepository<VirtualModelEntit
 
     boolean existsByTenantIdAndName(UUID tenantId, String name);
 
-    void deleteByVirtualModelIdIn(Collection<UUID> virtualModelIds);
-
     List<VirtualModelEntity> findAllByTenantIdAndVirtualModelIdIn(UUID tenantId, Collection<UUID> virtualModelId);
+
+    VirtualModelEntity findAllByTenantIdAndVirtualModelId(UUID tenantId, UUID virtualModelId);
+
+    void deleteByTenantIdAndVirtualModelIdIn(UUID tenantId, List<UUID> ids);
 }
