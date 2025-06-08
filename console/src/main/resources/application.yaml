@@ -67,3 +67,6 @@ gptalk:
     type: "AES"
     aes:
       secret: "${SECRET}"
+  console:
+    gateway:
+      base-url: http://localhost

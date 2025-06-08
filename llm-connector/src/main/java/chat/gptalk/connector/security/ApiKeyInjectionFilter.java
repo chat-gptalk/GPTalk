@@ -1,6 +1,6 @@
 package chat.gptalk.connector.security;
 
-import chat.gptalk.common.security.SecurityConstants;
+import chat.gptalk.security.security.SecurityConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;

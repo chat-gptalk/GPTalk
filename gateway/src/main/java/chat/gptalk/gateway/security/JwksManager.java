@@ -12,8 +12,10 @@ import java.security.spec.RSAPublicKeySpec;
 import java.util.Base64;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+@Component
 @RequiredArgsConstructor
 public class JwksManager {
 

@@ -2,6 +2,7 @@ package chat.gptalk.connector.exception;
 
 import chat.gptalk.common.exception.ApiException;
 import chat.gptalk.common.exception.CommonErrorCode;
+import chat.gptalk.common.exception.LLMError;
 import chat.gptalk.common.util.JsonUtils;
 import chat.gptalk.common.util.MessageUtils;
 import java.util.stream.Collectors;

@@ -29,6 +29,12 @@ export default [
     component: './Welcome',
   },
   {
+    path: '/playground',
+    name: 'playground',
+    icon: 'DashboardOutlined',
+    component: './Playground',
+  },
+  {
     path: '/virtual-model',
     name: 'virtual-model',
     icon: 'crown',

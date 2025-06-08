@@ -1,4 +1,4 @@
-package chat.gptalk.connector.exception;
+package chat.gptalk.common.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
