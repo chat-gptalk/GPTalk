@@ -4,6 +4,8 @@ export default {
   'menu.dashboard.monitor': 'Monitor',
   'menu.dashboard.workplace': 'Workplace',
 
+  'menu.playground': 'Playground',
+
   'menu.virtual-model': 'Virtual Model',
   'menu.virtual-model.model': 'Models',
   'menu.virtual-model.key': 'Keys',

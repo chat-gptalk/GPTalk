@@ -1,7 +1,7 @@
 package chat.gptalk.gateway.repository;
 
 import chat.gptalk.common.constants.EntityStatus;
-import chat.gptalk.gateway.entity.ApiKeyEntity;
+import chat.gptalk.common.entity.VirtualKeyEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.r2dbc.core.R2dbcEntityOperations;
 import org.springframework.data.relational.core.query.Criteria;
@@ -17,10 +17,18 @@ public class ApiKeyRepository {
     private final DatabaseClient databaseClient;
     private final R2dbcEntityOperations entityOperations;
 
-    public Mono<ApiKeyEntity> findByKey(String keyHash) {
+    public Mono<VirtualKeyEntity> findByKey(String keyHash) {
         return entityOperations.selectOne(Query.query(Criteria
             .where("key_hash").is(keyHash)
             .and("status").is(EntityStatus.ACTIVE.getCode())
-        ), ApiKeyEntity.class);
+        ), VirtualKeyEntity.class);
+    }
+
+    public Mono<Boolean> existsByTenantIdAndVirtualKeyId(String tenantId, String virtualKeyId) {
+        return entityOperations.exists(Query.query(Criteria
+            .where("tenant_id").is(tenantId)
+            .and("virtual_key_id").is(virtualKeyId)
+            .and("status").is(EntityStatus.ACTIVE.getCode())
+        ), VirtualKeyEntity.class);
     }
 }

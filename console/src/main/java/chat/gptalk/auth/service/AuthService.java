@@ -6,8 +6,8 @@ import static chat.gptalk.common.security.SecurityConstants.REFRESH_TOKEN_DURATI
 import chat.gptalk.auth.config.AuthProperties;
 import chat.gptalk.auth.exception.AuthErrorCode;
 import chat.gptalk.auth.model.request.LoginRequest;
-import chat.gptalk.auth.model.response.LoginResponse;
 import chat.gptalk.auth.model.request.RegisterRequest;
+import chat.gptalk.auth.model.response.LoginResponse;
 import chat.gptalk.auth.model.response.RegisterResponse;
 import chat.gptalk.auth.repository.TenantRepository;
 import chat.gptalk.auth.repository.UserRepository;

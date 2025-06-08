@@ -31,4 +31,4 @@ spring:
 gptalk:
   gateway:
     auth:
-      base-url: http://localhost:8080
+      base-url: http://localhost:9001/api/v1

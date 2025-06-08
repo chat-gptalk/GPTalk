@@ -2,6 +2,7 @@ package chat.gptalk.connector.exception;
 
 import chat.gptalk.common.exception.ApiException;
 import chat.gptalk.common.exception.CommonErrorCode;
+import chat.gptalk.common.exception.LLMError;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
