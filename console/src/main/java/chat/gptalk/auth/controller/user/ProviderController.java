@@ -10,6 +10,7 @@ import chat.gptalk.common.model.request.BatchDeleteRequest;
 import io.swagger.v3.oas.annotations.Operation;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -44,7 +45,7 @@ public class ProviderController {
     }
 
     @GetMapping("{providerId}")
-    public ProviderResponse getProvider(@PathVariable("providerId") String providerId) {
+    public ProviderResponse getProvider(@PathVariable("providerId") UUID providerId) {
         return providerService.getProvider(providerId);
     }
 
@@ -56,7 +57,7 @@ public class ProviderController {
     }
 
     @GetMapping("{providerId}/models")
-    public List<ModelResponse> getProviderModels(@PathVariable("providerId") String providerId) {
+    public List<ModelResponse> getProviderModels(@PathVariable("providerId") UUID providerId) {
         return modelService.getProviderModels(providerId);
     }
 }

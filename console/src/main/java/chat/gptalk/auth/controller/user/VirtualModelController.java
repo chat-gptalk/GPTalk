@@ -7,6 +7,7 @@ import chat.gptalk.auth.service.VirtualModelService;
 import chat.gptalk.common.model.request.BatchDeleteRequest;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -39,7 +40,7 @@ public class VirtualModelController {
     }
 
     @PatchMapping("{virtualModelId}")
-    public VirtualModelResponse patchVirtualModel(@PathVariable String virtualModelId,
+    public VirtualModelResponse patchVirtualModel(@PathVariable UUID virtualModelId,
         @Valid @RequestBody PatchVirtualModelRequest patchVirtualModelRequest) {
         return virtualModelService.patchVirtualModel(virtualModelId, patchVirtualModelRequest);
     }

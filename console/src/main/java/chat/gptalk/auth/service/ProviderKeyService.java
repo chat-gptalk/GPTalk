@@ -12,7 +12,6 @@ import chat.gptalk.common.exception.DataConflictException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +28,10 @@ public class ProviderKeyService {
     private final ProviderService providerService;
     private final ProviderKeyRepository providerKeyRepository;
 
-    public List<ProviderKeyResponse> getProviderKeys(String providerId) {
+    public List<ProviderKeyResponse> getProviderKeys(UUID providerId) {
         return providerKeyRepository.findByTenantId(SecurityUtils.getTenantId(), Sort.by(Order.desc("id")))
             .stream()
-            .filter(it -> providerId == null || it.providerId().toString().equals(providerId))
+            .filter(it -> providerId == null || it.providerId().equals(providerId))
             .map(this::mapToResponse)
             .toList();
     }
@@ -56,7 +55,7 @@ public class ProviderKeyService {
         }
         LlmProviderKeyEntity providerKeyEntity = LlmProviderKeyEntity.builder()
             .providerKeyId(UUID.randomUUID())
-            .providerId(UUID.fromString(createRequest.providerId()))
+            .providerId(createRequest.providerId())
             .name(createRequest.name())
             .enabled(createRequest.enabled())
             .priority(createRequest.priority())
@@ -72,15 +71,15 @@ public class ProviderKeyService {
     }
 
     @Transactional
-    public void batchDelete(@NotNull String[] ids) {
+    public void batchDelete(@NotNull List<UUID> ids) {
         providerKeyRepository.deleteByTenantIdAndProviderKeyIdIn(
-            SecurityUtils.getTenantId(), Arrays.stream(ids).map(UUID::fromString).toList());
+            SecurityUtils.getTenantId(), ids);
     }
 
-    public ProviderKeyResponse patchProviderKey(String providerKeyId,
+    public ProviderKeyResponse patchProviderKey(UUID providerKeyId,
         @Valid PatchProviderKeyRequest patchRequest) {
         LlmProviderKeyEntity providerKeyEntity = providerKeyRepository.findOneByTenantIdAndProviderKeyId(
-            SecurityUtils.getTenantId(), UUID.fromString(providerKeyId));
+            SecurityUtils.getTenantId(), providerKeyId);
         if (patchRequest.enabled() != null) {
             providerKeyEntity = providerKeyEntity.withEnabled(patchRequest.enabled());
         }
@@ -105,9 +104,9 @@ public class ProviderKeyService {
         return mapToResponse(providerKeyEntity);
     }
 
-    public ProviderKeyValueResponse getProviderKeyValue(String providerKeyId) {
+    public ProviderKeyValueResponse getProviderKeyValue(UUID providerKeyId) {
         LlmProviderKeyEntity entity = providerKeyRepository.findOneByTenantIdAndProviderKeyId(
-            SecurityUtils.getTenantId(), UUID.fromString(providerKeyId));
+            SecurityUtils.getTenantId(), providerKeyId);
         return new ProviderKeyValueResponse(cryptoProvider.decrypt(entity.keyEnc()));
     }
 }
