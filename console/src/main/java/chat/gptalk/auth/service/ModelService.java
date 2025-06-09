@@ -12,7 +12,6 @@ import chat.gptalk.common.exception.DataConflictException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -29,10 +28,10 @@ public class ModelService {
     private final ModelRepository modelRepository;
     private final ProviderService providerService;
 
-    public List<ModelResponse> getModels(String providerId, String status) {
+    public List<ModelResponse> getModels(UUID providerId, String status) {
         return modelRepository.findByTenantId(SecurityUtils.getTenantId(), Sort.by(Order.desc("id")))
             .stream()
-            .filter(it -> providerId == null || it.providerId().toString().equals(providerId))
+            .filter(it -> providerId == null || it.providerId().equals(providerId))
             .filter(it -> status == null || it.status().equals(status))
             .map(this::mapToResponse)
             .toList();
@@ -43,8 +42,8 @@ public class ModelService {
         return mapToResponse(modelEntity);
     }
 
-    public List<ModelResponse> getProviderModels(String providerId) {
-        return modelRepository.findByProviderId(UUID.fromString(providerId))
+    public List<ModelResponse> getProviderModels(UUID providerId) {
+        return modelRepository.findByProviderId(providerId)
             .stream()
             .map(this::mapToResponseWithoutProvider)
             .toList();
@@ -76,7 +75,7 @@ public class ModelService {
         }
         LlmModelEntity modelEntity = LlmModelEntity.builder()
             .modelId(UUID.randomUUID())
-            .providerId(UUID.fromString(createRequest.providerId()))
+            .providerId(createRequest.providerId())
             .name(createRequest.name())
             .features(createRequest.features().stream().map(Enum::name).collect(Collectors.toList()))
             .enabled(createRequest.enabled())
@@ -93,15 +92,14 @@ public class ModelService {
     }
 
     @Transactional
-    public void batchDelete(@NotNull String[] ids) {
-        modelRepository.deleteByTenantIdAndModelIdIn(
-            SecurityUtils.getTenantId(), Arrays.stream(ids).map(UUID::fromString).toList());
+    public void batchDelete(@NotNull List<UUID> ids) {
+        modelRepository.deleteByTenantIdAndModelIdIn(SecurityUtils.getTenantId(), ids);
     }
 
-    public ModelResponse patchModel(String modelId,
+    public ModelResponse patchModel(UUID modelId,
         @Valid PatchModelRequest patchRequest) {
         LlmModelEntity modelEntity = modelRepository.findOneByTenantIdAndModelId(
-            SecurityUtils.getTenantId(), UUID.fromString(modelId));
+            SecurityUtils.getTenantId(), modelId);
         if (patchRequest.enabled() != null) {
             modelEntity = modelEntity.withEnabled(patchRequest.enabled());
         }
@@ -120,8 +118,7 @@ public class ModelService {
         return mapToResponse(modelEntity);
     }
 
-    public boolean hasPermissions(List<String> ids) {
-        return modelRepository.countByTenantIdAndModelIdIn(SecurityUtils.getTenantId(),
-            ids.stream().map(UUID::fromString).toList()).equals(ids.size());
+    public boolean hasPermissions(List<UUID> ids) {
+        return modelRepository.countByTenantIdAndModelIdIn(SecurityUtils.getTenantId(), ids).equals(ids.size());
     }
 }

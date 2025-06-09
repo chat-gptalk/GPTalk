@@ -1,4 +1,4 @@
-package chat.gptalk.auth.config;
+package chat.gptalk.auth.config.jdbc;
 
 import chat.gptalk.common.util.JsonUtils;
 import java.sql.SQLException;

@@ -8,6 +8,7 @@ import chat.gptalk.auth.service.ProviderKeyService;
 import chat.gptalk.common.model.request.BatchDeleteRequest;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -28,7 +29,7 @@ public class ProviderKeyController {
     private final ProviderKeyService providerKeyService;
 
     @GetMapping
-    public List<ProviderKeyResponse> getProviderKeys(@RequestParam(required = false) String providerId) {
+    public List<ProviderKeyResponse> getProviderKeys(@RequestParam(required = false) UUID providerId) {
         return providerKeyService.getProviderKeys(providerId);
     }
 
@@ -39,13 +40,13 @@ public class ProviderKeyController {
     }
 
     @GetMapping("{providerKeyId}/reveal")
-    public ProviderKeyValueResponse getProviderKeyValue(@PathVariable("providerKeyId") String providerKeyId) {
+    public ProviderKeyValueResponse getProviderKeyValue(@PathVariable("providerKeyId") UUID providerKeyId) {
         return providerKeyService.getProviderKeyValue(providerKeyId);
     }
 
     @PatchMapping("{providerKeyId}")
     public ProviderKeyResponse patchProviderKey(
-        @PathVariable("providerKeyId") String providerKeyId,
+        @PathVariable("providerKeyId") UUID providerKeyId,
         @RequestBody @Valid PatchProviderKeyRequest patchRequest) {
         return providerKeyService.patchProviderKey(providerKeyId, patchRequest);
     }

@@ -10,7 +10,6 @@ import chat.gptalk.common.security.ConsoleAuthenticatedUser;
 import chat.gptalk.common.util.ApiKeyUtils;
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -64,8 +63,8 @@ public class VirtualKeyService {
     }
 
     @Transactional
-    public void batchDelete(@NotNull String[] ids) {
+    public void batchDelete(@NotNull List<UUID> ids) {
         virtualKeyRepository.deleteByTenantIdAndVirtualKeyIdIn(SecurityUtils.getTenantId(),
-            Arrays.stream(ids).map(UUID::fromString).toList());
+            ids);
     }
 }

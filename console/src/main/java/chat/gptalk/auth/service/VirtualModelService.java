@@ -14,7 +14,6 @@ import chat.gptalk.common.exception.ForbiddenException;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -60,7 +59,7 @@ public class VirtualModelService {
         virtualModelEntity = virtualModelRepository.save(virtualModelEntity);
         List<VirtualModelMappingEntity> mappings = createVirtualModelRequest.modelIds().stream()
             .map(modelId -> VirtualModelMappingEntity.builder()
-                .modelId(UUID.fromString(modelId))
+                .modelId(modelId)
                 .virtualModelId(virtualModelId)
                 .userId(SecurityUtils.getCurrentUser().userId())
                 .tenantId(SecurityUtils.getTenantId())
@@ -97,16 +96,15 @@ public class VirtualModelService {
     }
 
     @Transactional
-    public void batchDelete(@NotNull String[] ids) {
-        virtualModelRepository.deleteByTenantIdAndVirtualModelIdIn(SecurityUtils.getTenantId(),
-            Arrays.stream(ids).map(UUID::fromString).toList());
+    public void batchDelete(@NotNull List<UUID> ids) {
+        virtualModelRepository.deleteByTenantIdAndVirtualModelIdIn(SecurityUtils.getTenantId(), ids);
     }
 
     @Transactional
-    public VirtualModelResponse patchVirtualModel(String virtualModelId,
+    public VirtualModelResponse patchVirtualModel(UUID virtualModelId,
         @Valid PatchVirtualModelRequest patchVirtualModelRequest) {
         VirtualModelEntity entity = virtualModelRepository.findAllByTenantIdAndVirtualModelId(
-            SecurityUtils.getTenantId(), UUID.fromString(virtualModelId));
+            SecurityUtils.getTenantId(), virtualModelId);
         if (patchVirtualModelRequest.name() != null) {
             entity = entity.withName(patchVirtualModelRequest.name());
         }
@@ -118,11 +116,11 @@ public class VirtualModelService {
             if (!hasPermissions) {
                 throw new ForbiddenException();
             }
-            virtualModelMappingRepository.deleteByModelId(UUID.fromString(virtualModelId));
+            virtualModelMappingRepository.deleteByModelId(virtualModelId);
             List<VirtualModelMappingEntity> mappings = patchVirtualModelRequest.modelIds().stream()
                 .map(modelId -> VirtualModelMappingEntity.builder()
-                    .modelId(UUID.fromString(modelId))
-                    .virtualModelId(UUID.fromString(virtualModelId))
+                    .modelId(modelId)
+                    .virtualModelId(virtualModelId)
                     .userId(SecurityUtils.getCurrentUser().userId())
                     .tenantId(SecurityUtils.getTenantId())
                     .weight(0)

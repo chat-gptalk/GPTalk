@@ -15,7 +15,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -113,37 +112,36 @@ public class ProviderService {
         return mapToResponse(providerEntity);
     }
 
-    public boolean hasPermission(@NotNull String id) {
-        return hasPermissions(new String[]{id});
+    public boolean hasPermission(@NotNull UUID id) {
+        return hasPermissions(List.of(id));
     }
 
-    public boolean hasPermissions(@NotNull String[] ids) {
+    public boolean hasPermissions(@NotNull List<UUID> ids) {
         List<LlmProviderEntity> results = providerRepository.findAllByTenantIdAndProviderIdIn(
             SecurityUtils.getTenantId(),
-            Arrays.stream(ids).map(UUID::fromString).toList());
-        return results.size() == ids.length;
+            ids);
+        return results.size() == ids.size();
     }
 
     @Transactional
-    public void batchDelete(@NotNull String[] ids) {
-        List<UUID> uids = Arrays.stream(ids).map(UUID::fromString).toList();
-        Integer usedModelCount = modelRepository.countByTenantIdAndProviderIdIn(SecurityUtils.getTenantId(), uids);
+    public void batchDelete(@NotNull List<UUID> ids) {
+        Integer usedModelCount = modelRepository.countByTenantIdAndProviderIdIn(SecurityUtils.getTenantId(), ids);
         if (usedModelCount > 0) {
             throw new BadRequestException(
                 "This provider is associated with one or more models. Please remove those models before deleting the provider.");
         }
         Integer usedProviderKeyCount = providerKeyRepository.countByTenantIdAndProviderIdIn(SecurityUtils.getTenantId(),
-            uids);
+            ids);
         if (usedProviderKeyCount > 0) {
             throw new BadRequestException(
                 "This provider has associated keys. Please delete the keys before proceeding.");
         }
-        providerRepository.deleteByProviderIdIn(uids);
+        providerRepository.deleteByProviderIdIn(ids);
     }
 
-    public ProviderResponse getProvider(String providerId) {
+    public ProviderResponse getProvider(UUID providerId) {
         LlmProviderEntity provider = providerRepository.findOneByTenantIdAndProviderIdOrSystem(
-            SecurityUtils.getTenantId(), UUID.fromString(providerId), true);
+            SecurityUtils.getTenantId(), providerId, true);
         return mapToResponse(provider);
     }
 }

@@ -7,6 +7,7 @@ import chat.gptalk.auth.service.ModelService;
 import chat.gptalk.common.model.request.BatchDeleteRequest;
 import jakarta.validation.Valid;
 import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -27,7 +28,8 @@ public class ModelController {
     private final ModelService modelService;
 
     @GetMapping
-    public List<ModelResponse> getModels(@RequestParam(required = false) String providerId, @RequestParam(required = false) String status) {
+    public List<ModelResponse> getModels(@RequestParam(required = false) UUID providerId,
+        @RequestParam(required = false) String status) {
         return modelService.getModels(providerId, status);
     }
 
@@ -39,7 +41,7 @@ public class ModelController {
 
     @PatchMapping("{modelId}")
     public ModelResponse patchModel(
-        @PathVariable("modelId") String modelId,
+        @PathVariable("modelId") UUID modelId,
         @RequestBody @Valid PatchModelRequest patchRequest) {
         return modelService.patchModel(modelId, patchRequest);
     }

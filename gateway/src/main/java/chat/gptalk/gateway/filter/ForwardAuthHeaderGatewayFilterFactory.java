@@ -2,8 +2,6 @@ package chat.gptalk.gateway.filter;
 
 import chat.gptalk.common.security.ApiAuthenticatedUser;
 import chat.gptalk.common.security.SecurityConstants;
-import chat.gptalk.gateway.ratelimit.RpmRateLimiterGatewayFilterFactory;
-import chat.gptalk.gateway.ratelimit.RpmRateLimiterGatewayFilterFactory.Config;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -15,10 +13,15 @@ import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Component
-public class ForwardAuthHeaderGatewayFilterFactory extends AbstractGatewayFilterFactory<Config> {
+public class ForwardAuthHeaderGatewayFilterFactory extends
+    AbstractGatewayFilterFactory<ForwardAuthHeaderGatewayFilterFactory.Config> {
+
+    public ForwardAuthHeaderGatewayFilterFactory() {
+        super(Config.class);
+    }
 
     @Override
-    public GatewayFilter apply(RpmRateLimiterGatewayFilterFactory.Config config) {
+    public GatewayFilter apply(ForwardAuthHeaderGatewayFilterFactory.Config config) {
         return new GatewayFilter() {
             @Override
             public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -37,7 +40,7 @@ public class ForwardAuthHeaderGatewayFilterFactory extends AbstractGatewayFilter
         };
     }
 
-    public class Config {
+    public static class Config {
 
     }
 }

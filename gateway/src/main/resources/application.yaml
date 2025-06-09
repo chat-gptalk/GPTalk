@@ -19,6 +19,8 @@ spring:
           uri: http://localhost:8080
           predicates:
             Path=/v1/chat/**
+          filters:
+            - name: ForwardAuthHeader
       loadbalancer:
         use404: false
 #          filters:
