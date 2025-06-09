@@ -1,5 +1,6 @@
 package chat.gptalk.auth.controller.user;
 
+import static chat.gptalk.common.security.SecurityConstants.ACCESS_TOKEN;
 import static chat.gptalk.common.security.SecurityConstants.HEADER_API_KEY_ID;
 import static chat.gptalk.common.security.SecurityConstants.HEADER_CLIENT_ID;
 
@@ -8,11 +9,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
@@ -25,16 +28,19 @@ public class ChatProxyController {
 
     @PostMapping("/completions")
     public Mono<ResponseEntity<?>> proxyChatCompletion(@RequestBody String body,
+        @CookieValue(ACCESS_TOKEN) String accessToken,
         @RequestHeader(value = HEADER_API_KEY_ID, required = false) String apiKeyId) {
         //todo webflux to mvc
         return gatewayClient.post()
             .uri("/v1/chat/completions")
             .headers(headers -> {
                 //todo
-                headers.set(HEADER_API_KEY_ID, "0f911a38-30a9-446c-9aef-f2d48779026e");
+                headers.set(HEADER_API_KEY_ID, "aae12117-60bc-47fd-8eef-e25bcb287cce");
                 headers.set(HEADER_CLIENT_ID, "gptalk-console");
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);
             })
-            .body(body, String.class)
+            .body(BodyInserters.fromValue(body))
             .exchangeToMono(response -> {
                 HttpStatusCode status = response.statusCode();
                 HttpHeaders responseHeaders = new HttpHeaders();
