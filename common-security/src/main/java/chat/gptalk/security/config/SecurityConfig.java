@@ -5,6 +5,7 @@ import chat.gptalk.common.exception.UnauthorizedException;
 import chat.gptalk.common.security.ApiAuthenticatedUser;
 import chat.gptalk.common.security.SecurityConstants;
 import chat.gptalk.security.security.GatewayAuthenticationToken;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -74,9 +75,9 @@ public class SecurityConfig {
             return Mono.error(new UnauthorizedException(CommonErrorCode.TOKEN_EMPTY));
         }
         return Mono.just(new GatewayAuthenticationToken(ApiAuthenticatedUser.builder()
-            .apiKeyId(apiKeyId)
-            .tenantId(tenantId)
-            .userId(userId)
+            .apiKeyId(UUID.fromString(apiKeyId))
+            .tenantId(UUID.fromString(tenantId))
+            .userId(UUID.fromString(userId))
             .build()));
     }
 }

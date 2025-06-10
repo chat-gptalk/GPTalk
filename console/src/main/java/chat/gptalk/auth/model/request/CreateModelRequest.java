@@ -9,7 +9,7 @@ import java.util.UUID;
 
 public record CreateModelRequest(
     @NotBlank String name,
-    @NotBlank UUID providerId,
+    @NotNull UUID providerId,
     @NotNull Boolean enabled,
     @NotEmpty List<ModelFeature> features
 ) {

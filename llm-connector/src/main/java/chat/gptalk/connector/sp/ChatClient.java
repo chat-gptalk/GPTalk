@@ -8,9 +8,7 @@ import reactor.core.publisher.Mono;
 
 public interface ChatClient extends LLMClient {
 
-    Mono<Boolean> support(String model);
+    Mono<ChatCompletion> chatCompletion(String baseUrl, String key, ChatCompletionRequest request);
 
-    Mono<ChatCompletion> chatCompletion(ChatCompletionRequest request);
-
-    Flux<ChatCompletionChunk> chatCompletionStream(ChatCompletionRequest request);
+    Flux<ChatCompletionChunk> chatCompletionStream(String baseUrl, String key, ChatCompletionRequest request);
 }

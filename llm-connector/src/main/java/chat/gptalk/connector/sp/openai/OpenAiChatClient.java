@@ -15,22 +15,16 @@ public class OpenAiChatClient implements OpenAiClient, ChatClient {
     private final OpenAiApi openAiApi;
 
     public OpenAiChatClient(WebClient llmWebClient) {
-        String baseUrl = System.getenv("OPENAI_BASE_URL");
-        this.openAiApi = new OpenAiApi(baseUrl, llmWebClient);
+        this.openAiApi = new OpenAiApi(llmWebClient);
     }
 
     @Override
-    public Mono<Boolean> support(String model) {
-        return Mono.just(true);
+    public Mono<ChatCompletion> chatCompletion(String baseUrl, String key, ChatCompletionRequest request) {
+        return openAiApi.chatCompletion(baseUrl, key, request);
     }
 
     @Override
-    public Mono<ChatCompletion> chatCompletion(ChatCompletionRequest request) {
-        return openAiApi.chatCompletion(request);
-    }
-
-    @Override
-    public Flux<ChatCompletionChunk> chatCompletionStream(ChatCompletionRequest request) {
-        return openAiApi.chatCompletionStream(request);
+    public Flux<ChatCompletionChunk> chatCompletionStream(String baseUrl, String key, ChatCompletionRequest request) {
+        return openAiApi.chatCompletionStream(baseUrl, key, request);
     }
 }

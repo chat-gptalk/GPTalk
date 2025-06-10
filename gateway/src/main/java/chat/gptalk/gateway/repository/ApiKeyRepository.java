@@ -2,6 +2,7 @@ package chat.gptalk.gateway.repository;
 
 import chat.gptalk.common.constants.EntityStatus;
 import chat.gptalk.common.entity.VirtualKeyEntity;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.r2dbc.core.R2dbcEntityOperations;
 import org.springframework.data.relational.core.query.Criteria;
@@ -24,7 +25,7 @@ public class ApiKeyRepository {
         ), VirtualKeyEntity.class);
     }
 
-    public Mono<Boolean> existsByTenantIdAndVirtualKeyId(String tenantId, String virtualKeyId) {
+    public Mono<Boolean> existsByTenantIdAndVirtualKeyId(UUID tenantId, UUID virtualKeyId) {
         return entityOperations.exists(Query.query(Criteria
             .where("tenant_id").is(tenantId)
             .and("virtual_key_id").is(virtualKeyId)

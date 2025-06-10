@@ -1,11 +1,12 @@
 package chat.gptalk.common.security;
 
+import java.util.UUID;
 import lombok.Builder;
 
 @Builder
 public record ApiAuthenticatedUser(
-    String userId,
-    String apiKeyId,
-    String tenantId
+    UUID userId,
+    UUID apiKeyId,
+    UUID tenantId
 ) {
 }

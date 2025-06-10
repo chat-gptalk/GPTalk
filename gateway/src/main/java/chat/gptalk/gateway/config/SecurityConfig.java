@@ -115,11 +115,11 @@ public class SecurityConfig {
             InternalAuthenticationToken token = (InternalAuthenticationToken) authentication;
             String jwtToken = token.getCredentials().toString();
             ConsoleAuthenticatedUser consoleUser = jwtUtils.verifyAndParse(jwtToken);
-            return authService.verify(consoleUser.tenantId().toString(), token.getApiKeyId())
+            return authService.verify(consoleUser.tenantId(), token.getApiKeyId())
                 .filter(it -> it)
                 .map(it -> new InternalAuthenticationToken(ApiAuthenticatedUser.builder()
-                    .userId(consoleUser.userId().toString())
-                    .tenantId(consoleUser.tenantId().toString())
+                    .userId(consoleUser.userId())
+                    .tenantId(consoleUser.tenantId())
                     .apiKeyId(token.getApiKeyId())
                     .build()));
         };
