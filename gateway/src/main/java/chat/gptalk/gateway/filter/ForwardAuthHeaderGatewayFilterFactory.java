@@ -30,9 +30,9 @@ public class ForwardAuthHeaderGatewayFilterFactory extends
                     .map(it -> (ApiAuthenticatedUser) it.getPrincipal())
                     .flatMap(user -> {
                         ServerHttpRequest httpRequest = exchange.getRequest().mutate()
-                            .header(SecurityConstants.HEADER_TENANT_ID, user.tenantId())
-                            .header(SecurityConstants.HEADER_USER_ID, user.userId())
-                            .header(SecurityConstants.HEADER_API_KEY_ID, user.apiKeyId())
+                            .header(SecurityConstants.HEADER_TENANT_ID, user.tenantId().toString())
+                            .header(SecurityConstants.HEADER_USER_ID, user.userId().toString())
+                            .header(SecurityConstants.HEADER_API_KEY_ID, user.apiKeyId().toString())
                             .build();
                         return chain.filter(exchange.mutate().request(httpRequest).build());
                     });

@@ -5,8 +5,10 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 import java.util.Map;
+import lombok.With;
 
 @JsonInclude(Include.NON_NULL)
+@With
 public record ChatCompletionRequest(
     @JsonProperty("messages")
     List<ChatCompletionMessage> messages,

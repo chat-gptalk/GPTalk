@@ -15,7 +15,7 @@ public class WebConfig {
     @Bean
     public WebClient llmWebClient() {
         return WebClient.builder()
-            .filter(apiKeyInjectionFilter)
+           // .filter(apiKeyInjectionFilter)
             .build();
     }
 }

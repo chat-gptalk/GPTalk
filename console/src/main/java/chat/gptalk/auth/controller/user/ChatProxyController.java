@@ -35,7 +35,7 @@ public class ChatProxyController {
             .uri("/v1/chat/completions")
             .headers(headers -> {
                 //todo
-                headers.set(HEADER_API_KEY_ID, "aae12117-60bc-47fd-8eef-e25bcb287cce");
+                headers.set(HEADER_API_KEY_ID, "fa948168-fdfd-4b2e-adb5-8f2a06e5f3cd");
                 headers.set(HEADER_CLIENT_ID, "gptalk-console");
                 headers.setContentType(MediaType.APPLICATION_JSON);
                 headers.set(HttpHeaders.AUTHORIZATION, "Bearer " + accessToken);

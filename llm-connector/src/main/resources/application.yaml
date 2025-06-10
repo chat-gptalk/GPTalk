@@ -20,3 +20,8 @@ gptalk:
   connector:
     llm-provider:
       base-url: http://localhost:9000
+  crypto:
+    enabled: true
+    type: "AES"
+    aes:
+      secret: "${SECRET}"

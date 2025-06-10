@@ -24,9 +24,9 @@ public class SecurityWebConfig {
             .map(it -> {
                 ApiAuthenticatedUser user = (ApiAuthenticatedUser) it.getAuthentication().getPrincipal();
                 HttpHeaders headers = clientRequest.headers();
-                headers.set(SecurityConstants.HEADER_TENANT_ID, user.tenantId());
-                headers.set(SecurityConstants.HEADER_USER_ID, user.userId());
-                headers.set(SecurityConstants.HEADER_API_KEY_ID, user.apiKeyId());
+                headers.set(SecurityConstants.HEADER_TENANT_ID, user.tenantId().toString());
+                headers.set(SecurityConstants.HEADER_USER_ID, user.userId().toString());
+                headers.set(SecurityConstants.HEADER_API_KEY_ID, user.apiKeyId().toString());
                 return clientRequest;
             }));
     }

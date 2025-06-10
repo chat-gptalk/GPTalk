@@ -11,10 +11,12 @@ import chat.gptalk.connector.sp.model.embedding.EmbeddingRequest;
 import java.util.List;
 import java.util.function.Predicate;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpHeaders;
 import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -32,12 +34,11 @@ public class OpenAiApi {
 
     private final WebClient webClient;
 
-    public OpenAiApi(String baseUrl, WebClient webClient) {
+    public OpenAiApi(WebClient llmWebClient) {
         this.completionsPath = "/v1/chat/completions";
         this.embeddingsPath = "/v1/embeddings";
-        this.webClient = webClient
+        this.webClient = llmWebClient
             .mutate()
-            .baseUrl(baseUrl)
             .build();
     }
 
@@ -48,23 +49,24 @@ public class OpenAiApi {
             .reduce("", (a, b) -> a + b);
     }
 
-    public Mono<ChatCompletion> chatCompletion(ChatCompletionRequest chatRequest) {
-
+    public Mono<ChatCompletion> chatCompletion(String baseUrl, String key, ChatCompletionRequest chatRequest) {
         return this.webClient.post()
-            .uri(this.completionsPath)
+            .uri(UriComponentsBuilder.fromUriString(baseUrl).path(completionsPath).build().toUri())
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + key)
             .body(BodyInserters.fromValue(chatRequest))
             .retrieve()
             .bodyToMono(ChatCompletion.class);
     }
 
     public Flux<ChatCompletionChunk> chatCompletionStream(
-        ChatCompletionRequest chatRequest) {
+        String baseUrl, String key, ChatCompletionRequest chatRequest) {
 
         Assert.notNull(chatRequest, "The request body can not be null.");
         Assert.isTrue(chatRequest.stream(), "Request must set the stream property to true.");
 
         return this.webClient.post()
-            .uri(this.completionsPath)
+            .uri(UriComponentsBuilder.fromUriString(baseUrl).path(completionsPath).build().toUri())
+            .header(HttpHeaders.AUTHORIZATION, "Bearer " + key)
             .body(Mono.just(chatRequest), ChatCompletionRequest.class)
             .retrieve()
             .bodyToFlux(String.class)
