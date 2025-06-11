@@ -28,8 +28,8 @@ import {
   Welcome,
   useXAgent,
   useXChat,
-  XRequest,
 } from '@ant-design/x';
+import OpenAI from 'openai';
 import {Avatar, Button, Flex, type GetProp, Space, Spin, message} from 'antd';
 import {createStyles} from 'antd-style';
 import dayjs from 'dayjs';
@@ -39,6 +39,7 @@ type BubbleDataType = {
   role: string;
   content: string;
 };
+
 
 const DEFAULT_CONVERSATIONS_ITEMS = [
   {
@@ -258,6 +259,21 @@ const useStyle = createStyles(({token, css}) => {
   };
 });
 
+interface MessageProps {
+  role: string;
+  content: string;
+}
+
+const client = new OpenAI({
+  apiKey: '',
+  baseURL: 'http://localhost:8080/openapi/v1',
+  dangerouslyAllowBrowser: true,
+  defaultHeaders: {
+    'Authorization': null,
+    'X-API-KEY-Id': 'fa948168-fdfd-4b2e-adb5-8f2a06e5f3cd',
+  }
+});
+
 const PlaygroundPage: React.FC = () => {
   const {styles} = useStyle();
   const abortController = useRef<AbortController>(null);
@@ -273,15 +289,35 @@ const PlaygroundPage: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
 
   const [agent] = useXAgent<BubbleDataType>({
-    baseURL: '/api/v1/chat/completions',
-    model: 'vm:docs4dev',
+    request: async ({message}, {onUpdate, onSuccess, onError, onStream}) => {
+      if (!message) {
+        return;
+      }
+      const stream = await client.chat.completions.create({
+        model: 'vm:docs4dev',
+        messages: [{role: "user", content: message.content}],
+        stream: true,
+        stream_options: {
+          include_usage: true,
+        },
+      });
+      const chunks = [];
+      for await (const chunk of stream) {
+        onUpdate(chunk);
+        chunks.push(chunk);
+      }
+      onSuccess(chunks);
+    },
   });
   const loading = agent.isRequesting();
+
+  function sleep(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
 
   const {onRequest, messages, setMessages} = useXChat({
     agent,
     requestFallback: (message, {error, messages}) => {
-      console.log(messages);
       if (error.name === 'AbortError') {
         return {
           content: 'Request is aborted',
@@ -295,33 +331,11 @@ const PlaygroundPage: React.FC = () => {
     },
     transformMessage: (info) => {
       const {originMessage, chunk} = info || {};
-      let currentContent = '';
-      let currentThink = '';
-      try {
-        if (chunk?.data && !chunk?.data.includes('DONE')) {
-          const message = JSON.parse(chunk?.data);
-          currentThink = message?.choices?.[0]?.delta?.reasoning_content || '';
-          currentContent = message?.choices?.[0]?.delta?.content || '';
-        }
-      } catch (error) {
-        console.error(error);
-      }
-
-      let content = '';
-
-      if (!originMessage?.content && currentThink) {
-        content = `<think>${currentThink}`;
-      } else if (
-          originMessage?.content?.includes('<think>') &&
-          !originMessage?.content.includes('</think>') &&
-          currentContent
-      ) {
-        content = `${originMessage?.content}</think>${currentContent}`;
-      } else {
-        content = `${originMessage?.content || ''}${currentThink}${currentContent}`;
-      }
+      // @ts-ignore
+      const currentContent: string = chunk?.choices[0]?.delta?.content || '';
+      console.log('currentContent', `${originMessage?.content || ''}${currentContent}`);
       return {
-        content: content,
+        content: `${originMessage?.content || ''}${currentContent}`,
         role: 'assistant',
       };
     },

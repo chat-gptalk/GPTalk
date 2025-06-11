@@ -1,4 +1,4 @@
-package chat.gptalk.auth.controller.user;
+package chat.gptalk.auth.controller;
 
 import chat.gptalk.auth.model.request.LoginRequest;
 import chat.gptalk.auth.model.response.LoginResponse;

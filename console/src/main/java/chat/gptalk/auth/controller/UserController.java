@@ -1,4 +1,4 @@
-package chat.gptalk.auth.controller.user;
+package chat.gptalk.auth.controller;
 
 import chat.gptalk.auth.util.SecurityUtils;
 import chat.gptalk.common.security.ConsoleAuthenticatedUser;

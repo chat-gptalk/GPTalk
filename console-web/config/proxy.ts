@@ -17,6 +17,13 @@ export default {
       changeOrigin: true,
       //pathRewrite: {'^/api': ''}
     },
+    '/openapi/': {
+      target: 'http://localhost',
+      changeOrigin: true,
+      compress: false,
+      ws: true,
+      pathRewrite: {'^/openapi': ''}
+    },
   },
 
   /**

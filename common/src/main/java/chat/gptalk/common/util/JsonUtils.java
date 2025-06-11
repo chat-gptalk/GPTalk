@@ -74,8 +74,12 @@ public class JsonUtils {
         }
     }
 
-    public static Map<String, Object> toMap(Object obj) {
-        return objectMapper.convertValue(obj, Map.class);
+    public static Map<String, Object> toMap(String json) {
+        try {
+            return objectMapper.readValue(json, Map.class);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static <T> T convert(Object obj, Class<T> clazz) {
