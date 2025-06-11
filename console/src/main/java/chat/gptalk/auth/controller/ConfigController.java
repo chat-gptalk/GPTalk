@@ -1,4 +1,4 @@
-package chat.gptalk.auth.controller.user;
+package chat.gptalk.auth.controller;
 
 import chat.gptalk.common.constants.ModelFeature;
 import chat.gptalk.common.constants.ModelStatus;

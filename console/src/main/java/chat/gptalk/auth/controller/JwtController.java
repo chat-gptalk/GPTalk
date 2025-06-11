@@ -1,4 +1,4 @@
-package chat.gptalk.auth.controller.user;
+package chat.gptalk.auth.controller;
 
 import chat.gptalk.auth.config.AuthProperties;
 import chat.gptalk.auth.util.JwtUtils;

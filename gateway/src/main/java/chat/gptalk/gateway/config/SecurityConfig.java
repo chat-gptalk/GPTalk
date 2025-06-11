@@ -1,5 +1,6 @@
 package chat.gptalk.gateway.config;
 
+import chat.gptalk.common.exception.BadRequestException;
 import chat.gptalk.common.exception.CommonErrorCode;
 import chat.gptalk.common.exception.LLMError;
 import chat.gptalk.common.exception.LLMError.ErrorDetails;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -133,17 +135,29 @@ public class SecurityConfig {
     private Mono<Authentication> processAuthorizationToken(ServerWebExchange exchange) {
         String apiKey = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
         if (!StringUtils.hasText(apiKey)) {
-            return Mono.error(new UnauthorizedException(CommonErrorCode.TOKEN_EMPTY));
+            return processCookieAuth(exchange);
         }
         if (!apiKey.startsWith(SecurityConstants.BEARER_PREFIX)) {
             return Mono.error(new UnauthorizedException(CommonErrorCode.UNAUTHORIZED_INVALID_TOKEN_FORMAT));
         }
         String authKey = apiKey.substring(SecurityConstants.BEARER_PREFIX.length());
-        String clientId = exchange.getRequest().getHeaders().getFirst(SecurityConstants.HEADER_CLIENT_ID);
-        String apiKeyId = exchange.getRequest().getHeaders().getFirst(SecurityConstants.HEADER_API_KEY_ID);
-        if (StringUtils.hasText(clientId)) {
-            return Mono.just(new InternalAuthenticationToken(authKey, apiKeyId));
-        }
         return Mono.just(new OpenApiAuthenticationToken(authKey));
+    }
+
+    private Mono<Authentication> processCookieAuth(ServerWebExchange exchange) {
+        HttpCookie accessTokenCookie = exchange.getRequest().getCookies().getFirst(SecurityConstants.ACCESS_TOKEN);
+        if (accessTokenCookie == null) {
+            return Mono.error(new BadRequestException("Invalid access token"));
+        }
+        //String clientId = exchange.getRequest().getHeaders().getFirst(SecurityConstants.HEADER_CLIENT_ID);
+        /*if (StringUtils.hasText(clientId)) {
+            return Mono.error(new BadRequestException("Invalid client ID"));
+        }*/
+
+        String apiKeyId = exchange.getRequest().getHeaders().getFirst(SecurityConstants.HEADER_API_KEY_ID);
+        if (!StringUtils.hasText(apiKeyId)) {
+            return Mono.error(new BadRequestException("Invalid apiKey ID"));
+        }
+        return Mono.just(new InternalAuthenticationToken(accessTokenCookie.getValue(), apiKeyId));
     }
 }
