@@ -1,12 +1,12 @@
 package chat.gptalk.gateway.security;
 
-import chat.gptalk.common.security.ApiAuthenticatedUser;
+import chat.gptalk.security.model.OpenApiUser;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 public class OpenApiAuthenticationToken extends AbstractAuthenticationToken {
 
     private String token;
-    private ApiAuthenticatedUser user;
+    private OpenApiUser user;
 
     public OpenApiAuthenticationToken(String token) {
         super(null);
@@ -14,7 +14,7 @@ public class OpenApiAuthenticationToken extends AbstractAuthenticationToken {
         this.token = token;
     }
 
-    public OpenApiAuthenticationToken(ApiAuthenticatedUser user) {
+    public OpenApiAuthenticationToken(OpenApiUser user) {
         super(null);
         setAuthenticated(true);
         this.user = user;

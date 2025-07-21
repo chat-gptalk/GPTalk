@@ -1,22 +1,22 @@
 package chat.gptalk.connector.exception;
 
-import chat.gptalk.common.exception.ApiException;
-import chat.gptalk.common.exception.CommonErrorCode;
+import chat.gptalk.common.constants.ErrorCode;
+import chat.gptalk.common.exception.BizException;
 import chat.gptalk.common.exception.LLMError;
 import chat.gptalk.common.util.JsonUtils;
 import chat.gptalk.common.util.MessageUtils;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.codec.DecodingException;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.support.WebExchangeBindException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @Slf4j
@@ -33,7 +33,7 @@ public class CustomExceptionHandler {
         return Mono.just(ResponseEntity
             .status(ex.getStatusCode())
             .body(new LLMError(LLMError.ErrorDetails.builder()
-                .code(CommonErrorCode.BAD_REQUEST.errorCode())
+                .code(ErrorCode.CM_INVALID_PARAM.name())
                 .message(message)
                 .build()))
         );
@@ -61,50 +61,42 @@ public class CustomExceptionHandler {
         return Mono.just(ResponseEntity
             .status(ex.getStatusCode())
             .body(new LLMError(LLMError.ErrorDetails.builder()
-                .code(CommonErrorCode.BAD_REQUEST.errorCode())
+                .code(ex.getReason())
                 .message(message)
                 .build())));
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public Mono<ResponseEntity<LLMError>> handleAccessDeniedException(AccessDeniedException ex) {
-        log.info(ex.getMessage());
-        return Mono.just(ResponseEntity
-            .status(HttpStatus.FORBIDDEN)
-            .body(new LLMError(LLMError.ErrorDetails.builder()
-                .code(CommonErrorCode.BAD_REQUEST.errorCode())
-                .message(ex.getMessage())
-                .build())));
-    }
 
-    @ExceptionHandler(LLMException.class)
-    public Mono<ResponseEntity<LLMError>> handleLLMException(LLMException ex) {
+    @ExceptionHandler(LlmException.class)
+    public Mono<ResponseEntity<LLMError>> handleLLMException(LlmException ex) {
         log.error(ex.getError().error().code() + ":" + ex.getMessage());
         return Mono.just(ResponseEntity
             .status(ex.getStatus())
             .body(ex.getError()));
     }
 
-    @ExceptionHandler(ApiException.class)
-    public Mono<ResponseEntity<LLMError>> handleApiException(ApiException ex) {
-        String message = MessageUtils.getMessage(ex.getDetail());
+    @ExceptionHandler(BizException.class)
+    public Mono<ResponseEntity<LLMError>> handleApiException(ServerWebExchange exchange, BizException ex) {
+        Locale locale = exchange.getLocaleContext().getLocale();
+        String message = MessageUtils.resolveMessage(locale, ex.getErrorCode());
         log.info(message);
         return Mono.just(ResponseEntity
-            .status(ex.getStatus())
+            .status(ex.getErrorCode().getHttpStatus())
             .body(new LLMError(LLMError.ErrorDetails.builder()
-                .code(CommonErrorCode.BAD_REQUEST.errorCode())
+                .code(ex.getErrorCode().name())
                 .message(message)
                 .build())));
     }
 
     @ExceptionHandler(Exception.class)
-    public Mono<ResponseEntity<LLMError>> handleGeneralException(Exception ex) {
+    public Mono<ResponseEntity<LLMError>> handleGeneralException(ServerWebExchange exchange, Exception ex) {
         log.error(ex.getMessage(), ex);
+        ErrorCode errorCode = ErrorCode.CM_SYSTEM_ERROR;
         return Mono.just(ResponseEntity
-            .status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .status(errorCode.getHttpStatus())
             .body(new LLMError(LLMError.ErrorDetails.builder()
-                .code(CommonErrorCode.BAD_REQUEST.errorCode())
-                .message(MessageUtils.getMessage(CommonErrorCode.INTERNAL_SERVER_ERROR.errorCode()))
+                .code(errorCode.getCode())
+                .message(MessageUtils.resolveMessage(exchange.getLocaleContext().getLocale(), errorCode))
                 .build())));
     }
 }

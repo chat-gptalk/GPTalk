@@ -1,6 +1,6 @@
 package chat.gptalk.connector.controller;
 
-import chat.gptalk.common.security.SecurityConstants;
+import chat.gptalk.security.SecurityConstants;
 import chat.gptalk.connector.service.ChatService;
 import chat.gptalk.connector.sp.model.chat.ChatCompletionRequest;
 import jakarta.validation.Valid;

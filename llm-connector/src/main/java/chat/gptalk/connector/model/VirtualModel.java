@@ -4,6 +4,6 @@ import java.util.UUID;
 
 public record VirtualModel(
     UUID virtualModelId,
-    String virtualModelName) {
+    String name) {
 
 }

@@ -1,7 +1,7 @@
 package chat.gptalk.connector.exception;
 
-import chat.gptalk.common.exception.ApiException;
-import chat.gptalk.common.exception.CommonErrorCode;
+import chat.gptalk.common.constants.ErrorCode;
+import chat.gptalk.common.exception.BizException;
 import chat.gptalk.common.exception.LLMError;
 import chat.gptalk.common.util.JsonUtils;
 import chat.gptalk.common.util.MessageUtils;
@@ -25,9 +25,9 @@ public class CustomWebExceptionHandler implements WebExceptionHandler {
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
         String message;
-        if (ex instanceof ApiException e) {
-            status = e.getStatus();
-            message = MessageUtils.getMessage(e.getDetail());
+        if (ex instanceof BizException e) {
+            status = e.getErrorCode().getHttpStatus();
+            message = MessageUtils.resolveMessage(exchange.getLocaleContext().getLocale(), e.getErrorCode(), e.getArgs());
             log.info(message);
         } else if (ex instanceof ResponseStatusException e) {
             status = HttpStatus.valueOf(e.getStatusCode().value());
@@ -41,7 +41,7 @@ public class CustomWebExceptionHandler implements WebExceptionHandler {
         exchange.getResponse().getHeaders().setContentType(MediaType.APPLICATION_PROBLEM_JSON);
 
         LLMError errorResponse = new LLMError(LLMError.ErrorDetails.builder()
-            .code(CommonErrorCode.BAD_REQUEST.errorCode().toString())
+            .code(ErrorCode.CM_SYSTEM_ERROR.name())
             .message(message)
             .build());
 

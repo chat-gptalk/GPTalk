@@ -31,6 +31,5 @@ spring:
 #                redis-rate-limiter.burstCapacity: 20
 #                redis-rate-limiter.requestedTokens: 1
 gptalk:
-  gateway:
-    auth:
-      base-url: http://localhost:9001/api/v1
+  auth:
+    baseUrl: http://localhost:9001

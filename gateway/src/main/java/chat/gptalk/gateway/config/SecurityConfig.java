@@ -1,21 +1,21 @@
 package chat.gptalk.gateway.config;
 
-import chat.gptalk.common.exception.BadRequestException;
-import chat.gptalk.common.exception.CommonErrorCode;
+import chat.gptalk.common.constants.ErrorCode;
 import chat.gptalk.common.exception.LLMError;
 import chat.gptalk.common.exception.LLMError.ErrorDetails;
-import chat.gptalk.common.exception.UnauthorizedException;
-import chat.gptalk.common.security.ApiAuthenticatedUser;
-import chat.gptalk.common.security.ConsoleAuthenticatedUser;
-import chat.gptalk.common.security.SecurityConstants;
 import chat.gptalk.common.util.JsonUtils;
 import chat.gptalk.gateway.security.InternalAuthenticationToken;
-import chat.gptalk.gateway.security.JwksManager;
 import chat.gptalk.gateway.security.OpenApiAuthenticationToken;
 import chat.gptalk.gateway.service.AuthService;
-import chat.gptalk.gateway.util.JwtUtils;
+import chat.gptalk.security.JwksManager;
+import chat.gptalk.security.SecurityConstants;
+import chat.gptalk.security.model.AdminUser;
+import chat.gptalk.security.model.OpenApiUser;
+import chat.gptalk.security.util.JwtVerifyUtils;
 import java.nio.charset.StandardCharsets;
 import java.security.interfaces.RSAPublicKey;
+import java.util.Map;
+import java.util.UUID;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -25,6 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.config.annotation.method.configuration.EnableReactiveMethodSecurity;
 import org.springframework.security.config.annotation.web.reactive.EnableWebFluxSecurity;
@@ -53,7 +54,7 @@ import reactor.core.publisher.Mono;
 public class SecurityConfig {
 
     private final AuthService authService;
-    private final JwtUtils jwtUtils;
+    private final JwtVerifyUtils jwtVerifyUtils;
     private final String[] permitAllPaths = {
         "/v1/auth/login",
         "/webjars/**",
@@ -63,8 +64,8 @@ public class SecurityConfig {
 
     public SecurityConfig(AuthService authService, JwksManager jwksManager) {
         this.authService = authService;
-        RSAPublicKey publicKey = jwksManager.getPublicKey();
-        this.jwtUtils = new JwtUtils(publicKey);
+        RSAPublicKey publicKey = jwksManager.loadJwksPublicKey();
+        this.jwtVerifyUtils = new JwtVerifyUtils(publicKey);
     }
 
     @Bean
@@ -89,7 +90,7 @@ public class SecurityConfig {
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
 
         LLMError llmError = new LLMError(ErrorDetails.builder()
-            .code(CommonErrorCode.UNAUTHORIZED.errorCode())
+            .code(ErrorCode.AU_UNAUTHORIZED.name())
             .message(message)
             .build());
         byte[] bytes = JsonUtils.toJson(llmError).getBytes(StandardCharsets.UTF_8);
@@ -115,14 +116,20 @@ public class SecurityConfig {
                     .map(it -> new OpenApiAuthenticationToken(it));
             }
             InternalAuthenticationToken token = (InternalAuthenticationToken) authentication;
-            String jwtToken = token.getCredentials().toString();
-            ConsoleAuthenticatedUser consoleUser = jwtUtils.verifyAndParse(jwtToken);
-            return authService.verify(consoleUser.tenantId(), token.getApiKeyId())
+            if (!(token.getCredentials() instanceof Map<?, ?>)) {
+                log.info("Authentication token does not contain an OpenApi token");
+                return Mono.error(new BadCredentialsException("Bad credentials"));
+            }
+            Map<String, Object> credentials = (Map<String, Object>) token.getCredentials();
+            String jwtToken = credentials.get("jwtToken").toString();
+            UUID apiKeyId = (UUID) credentials.get("apiKeyId");
+            AdminUser adminUser = jwtVerifyUtils.verifyAndParse(jwtToken);
+            return authService.verify(adminUser.tenantId(), apiKeyId)
                 .filter(it -> it)
-                .map(it -> new InternalAuthenticationToken(ApiAuthenticatedUser.builder()
-                    .userId(consoleUser.userId())
-                    .tenantId(consoleUser.tenantId())
-                    .apiKeyId(token.getApiKeyId())
+                .map(it -> new InternalAuthenticationToken(OpenApiUser.builder()
+                    .userId(adminUser.userId())
+                    .tenantId(adminUser.tenantId())
+                    .apiKeyId(apiKeyId)
                     .build()));
         };
     }
@@ -138,7 +145,7 @@ public class SecurityConfig {
             return processCookieAuth(exchange);
         }
         if (!apiKey.startsWith(SecurityConstants.BEARER_PREFIX)) {
-            return Mono.error(new UnauthorizedException(CommonErrorCode.UNAUTHORIZED_INVALID_TOKEN_FORMAT));
+            return Mono.error(new BadCredentialsException("Invalid Bearer token"));
         }
         String authKey = apiKey.substring(SecurityConstants.BEARER_PREFIX.length());
         return Mono.just(new OpenApiAuthenticationToken(authKey));
@@ -147,7 +154,7 @@ public class SecurityConfig {
     private Mono<Authentication> processCookieAuth(ServerWebExchange exchange) {
         HttpCookie accessTokenCookie = exchange.getRequest().getCookies().getFirst(SecurityConstants.ACCESS_TOKEN);
         if (accessTokenCookie == null) {
-            return Mono.error(new BadRequestException("Invalid access token"));
+            return Mono.error(new BadCredentialsException("Invalid access token"));
         }
         //String clientId = exchange.getRequest().getHeaders().getFirst(SecurityConstants.HEADER_CLIENT_ID);
         /*if (StringUtils.hasText(clientId)) {
@@ -156,7 +163,7 @@ public class SecurityConfig {
 
         String apiKeyId = exchange.getRequest().getHeaders().getFirst(SecurityConstants.HEADER_API_KEY_ID);
         if (!StringUtils.hasText(apiKeyId)) {
-            return Mono.error(new BadRequestException("Invalid apiKey ID"));
+            return Mono.error(new BadCredentialsException("apiKey ID is required"));
         }
         return Mono.just(new InternalAuthenticationToken(accessTokenCookie.getValue(), apiKeyId));
     }

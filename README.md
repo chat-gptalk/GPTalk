@@ -75,7 +75,7 @@ More examples can be found in the `examples/` folder.
 ```bash
 gptalk/
 ├── gptalk-core           # Core abstractions and interfaces
-├── gptalk-provider       # LLM provider implementation
+├── gptalk-provider       # LLM LLMProvider implementation
 ├── gptalk-metrics        # Prometheus / OpenTelemetry instrumentation
 ├── gptalk-rag            # Document splitting, vector store, RAG pipeline
 ├── gptalk-rate-limit     # Token/request-based rate limiter
