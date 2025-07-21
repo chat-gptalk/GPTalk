@@ -1,25 +1,24 @@
 package chat.gptalk.gateway.security;
 
-import chat.gptalk.common.security.ApiAuthenticatedUser;
+import chat.gptalk.security.model.OpenApiUser;
+import java.util.Map;
 import java.util.UUID;
-import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 public class InternalAuthenticationToken extends AbstractAuthenticationToken {
 
-    private String token;
-    @Getter
+    private String jwtToken;
     private UUID apiKeyId;
-    private ApiAuthenticatedUser user;
+    private OpenApiUser user;
 
-    public InternalAuthenticationToken(String token, String apiKeyId) {
+    public InternalAuthenticationToken(String jwtToken, String apiKeyId) {
         super(null);
         setAuthenticated(false);
-        this.token = token;
+        this.jwtToken = jwtToken;
         this.apiKeyId = UUID.fromString(apiKeyId);
     }
 
-    public InternalAuthenticationToken(ApiAuthenticatedUser user) {
+    public InternalAuthenticationToken(OpenApiUser user) {
         super(null);
         setAuthenticated(true);
         this.user = user;
@@ -27,7 +26,7 @@ public class InternalAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public Object getCredentials() {
-        return token;
+        return Map.of("jwtToken", jwtToken, "apiKeyId", apiKeyId);
     }
 
     @Override

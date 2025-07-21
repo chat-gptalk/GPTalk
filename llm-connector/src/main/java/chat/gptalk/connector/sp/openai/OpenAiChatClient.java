@@ -1,5 +1,6 @@
 package chat.gptalk.connector.sp.openai;
 
+import chat.gptalk.connector.model.ModelInvocationContext;
 import chat.gptalk.connector.sp.ChatClient;
 import chat.gptalk.connector.sp.model.chat.ChatCompletion;
 import chat.gptalk.connector.sp.model.chat.ChatCompletionChunk;
@@ -19,12 +20,17 @@ public class OpenAiChatClient implements OpenAiClient, ChatClient {
     }
 
     @Override
-    public Mono<ChatCompletion> chatCompletion(String baseUrl, String key, ChatCompletionRequest request) {
-        return openAiApi.chatCompletion(baseUrl, key, request);
+    public Mono<ChatCompletion> chatCompletion(ModelInvocationContext context, ChatCompletionRequest request) {
+        return openAiApi.chatCompletion(context.meta().provider().baseUrl(),
+            context.providerKey().credential(),
+            request);
     }
 
     @Override
-    public Flux<ChatCompletionChunk> chatCompletionStream(String baseUrl, String key, ChatCompletionRequest request) {
-        return openAiApi.chatCompletionStream(baseUrl, key, request);
+    public Flux<ChatCompletionChunk> chatCompletionStream(ModelInvocationContext context,
+        ChatCompletionRequest request) {
+        return openAiApi.chatCompletionStream(context.meta().provider().baseUrl(),
+            context.providerKey().credential(),
+            request);
     }
 }

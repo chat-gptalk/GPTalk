@@ -22,8 +22,9 @@
   <modules>
     <module>common</module>
     <module>common-security</module>
+    <module>auth</module>
     <module>gateway</module>
-    <module>console</module>
+    <module>admin-api</module>
     <module>llm-connector</module>
   </modules>
 

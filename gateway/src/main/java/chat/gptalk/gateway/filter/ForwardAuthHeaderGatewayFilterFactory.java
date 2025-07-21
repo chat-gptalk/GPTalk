@@ -1,7 +1,7 @@
 package chat.gptalk.gateway.filter;
 
-import chat.gptalk.common.security.ApiAuthenticatedUser;
-import chat.gptalk.common.security.SecurityConstants;
+import chat.gptalk.security.SecurityConstants;
+import chat.gptalk.security.model.OpenApiUser;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -27,7 +27,7 @@ public class ForwardAuthHeaderGatewayFilterFactory extends
             public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
                 return ReactiveSecurityContextHolder.getContext()
                     .map(SecurityContext::getAuthentication)
-                    .map(it -> (ApiAuthenticatedUser) it.getPrincipal())
+                    .map(it -> (OpenApiUser) it.getPrincipal())
                     .flatMap(user -> {
                         ServerHttpRequest httpRequest = exchange.getRequest().mutate()
                             .header(SecurityConstants.HEADER_TENANT_ID, user.tenantId().toString())

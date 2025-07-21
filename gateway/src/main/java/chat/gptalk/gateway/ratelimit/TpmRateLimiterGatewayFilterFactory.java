@@ -1,7 +1,7 @@
 package chat.gptalk.gateway.ratelimit;
 
-import chat.gptalk.common.security.SecurityConstants;
 import chat.gptalk.gateway.util.GatewayResponseUtils;
+import chat.gptalk.security.SecurityConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;

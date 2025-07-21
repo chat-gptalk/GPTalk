@@ -1,2 +1,1 @@
-chat.gptalk.security.config.SecurityConfig
-chat.gptalk.security.config.SecurityWebConfig
+chat.gptalk.security.config.CommonSecurityConfig

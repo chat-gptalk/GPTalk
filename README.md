@@ -1,7 +1,7 @@
 # 🚧 Coming Soon: GPTalk
 
 > A lightweight, pluggable LLM gateway and orchestration framework built on **Spring AI**.
-> Designed for real-world applications: **multi-provider**, **RAG-ready**, **rate-limited**, **observable**, and **production-ready**.
+> Designed for real-world applications: **multi-LLMProvider**, **RAG-ready**, **rate-limited**, **observable**, and **production-ready**.
 
 ## ❤️ Why GPTalk?
 
@@ -13,7 +13,7 @@ And it speaks Spring natively."
 
 **GPTalk** is an open-source LLM (Large Language Model) gateway and orchestration framework built for Java developers. It is powered by [Spring AI](https://docs.spring.io/spring-ai/) and follows the Spring Boot philosophy: convention over configuration, modularity, and production readiness.
 
-Whether you're building a chatbot, integrating RAG (Retrieval-Augmented Generation), or managing multi-provider LLM traffic, GPTalk provides a robust foundation with support for observability, token tracking, rate-limiting, and more.
+Whether you're building a chatbot, integrating RAG (Retrieval-Augmented Generation), or managing multi-LLMProvider LLM traffic, GPTalk provides a robust foundation with support for observability, token tracking, rate-limiting, and more.
 
 
 ## 🔧 Features
@@ -75,7 +75,7 @@ More examples can be found in the `examples/` folder.
 ```bash
 gptalk/
 ├── gptalk-core           # Core abstractions and interfaces
-├── gptalk-provider       # LLM provider implementation
+├── gptalk-LLMProvider       # LLM LLMProvider implementation
 ├── gptalk-metrics        # Prometheus / OpenTelemetry instrumentation
 ├── gptalk-rag            # Document splitting, vector store, RAG pipeline
 ├── gptalk-rate-limit     # Token/request-based rate limiter

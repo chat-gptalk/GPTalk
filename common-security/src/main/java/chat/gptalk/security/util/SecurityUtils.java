@@ -1,21 +1,24 @@
 package chat.gptalk.security.util;
 
-import chat.gptalk.common.security.ApiAuthenticatedUser;
+import chat.gptalk.common.constants.ErrorCode;
+import chat.gptalk.common.exception.BizException;
+import chat.gptalk.security.model.AdminUser;
+import java.util.UUID;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.ReactiveSecurityContextHolder;
-import org.springframework.security.core.context.SecurityContext;
-import reactor.core.publisher.Mono;
+import org.springframework.security.core.context.SecurityContextHolder;
 
-public class SecurityUtils {
+public final class SecurityUtils {
 
-    public static Mono<ApiAuthenticatedUser> getCurrentUser() {
-        return getCurrentAuthentication()
-            .map(it -> (ApiAuthenticatedUser) it.getPrincipal());
+    public static AdminUser getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext()
+            .getAuthentication();
+        if(authentication.isAuthenticated()) {
+            return (AdminUser)authentication.getPrincipal();
+        }
+        throw new BizException(ErrorCode.AU_UNAUTHORIZED);
     }
 
-    private static Mono<Authentication> getCurrentAuthentication() {
-        return ReactiveSecurityContextHolder.getContext()
-            .map(SecurityContext::getAuthentication);
+    public static UUID getTenantId() {
+        return getCurrentUser().tenantId();
     }
 }
-

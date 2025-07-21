@@ -1,0 +1,33 @@
+server:
+  port: 8200
+spring:
+  application:
+    name: GPTalk admin api
+  datasource:
+    url: jdbc:postgresql://localhost:5432/gptalk_db?options=-c%20TimeZone=UTC
+    username: postgres
+    password: root
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      idle-timeout: 60000
+      connection-timeout: 30000
+      pool-name: GPTalkHikariCP
+  jackson:
+    default-property-inclusion: non_null
+logging:
+  level:
+    root: debug
+
+gptalk:
+  auth:
+    baseUrl: http://localhost:9001
+  crypto:
+    enabled: true
+    type: "AES"
+    aes:
+      secret: "${SECRET}"
+  console:
+    gateway:
+      base-url: http://localhost

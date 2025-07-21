@@ -1,8 +1,8 @@
 package chat.gptalk.gateway.service;
 
-import chat.gptalk.common.security.ApiAuthenticatedUser;
-import chat.gptalk.common.util.ApiKeyUtils;
 import chat.gptalk.gateway.repository.ApiKeyRepository;
+import chat.gptalk.security.model.OpenApiUser;
+import chat.gptalk.security.util.ApiKeyUtils;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,9 +15,9 @@ public class AuthService {
 
     private final ApiKeyRepository apiKeyRepository;
 
-    public Mono<ApiAuthenticatedUser> verify(String key) {
+    public Mono<OpenApiUser> verify(String key) {
         return apiKeyRepository.findByKey(ApiKeyUtils.hash(key))
-            .map(it -> ApiAuthenticatedUser.builder()
+            .map(it -> OpenApiUser.builder()
                 .userId(it.userId())
                 .apiKeyId(it.virtualKeyId())
                 .tenantId(it.tenantId())

@@ -35,7 +35,7 @@ build/
 .env
 !**/tests
 !**tests/
-llm-provider
+llm-LLMProvider
 
 # umi
 .umi
