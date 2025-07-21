@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @EnableConfigurationProperties({
     CryptoProperties.class,
-    ConsoleProperties.class
+    AdminProperties.class
 })
 public class ConfigRegistrar {
 
