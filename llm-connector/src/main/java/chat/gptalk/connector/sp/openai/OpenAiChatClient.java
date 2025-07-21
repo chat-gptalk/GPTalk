@@ -22,7 +22,7 @@ public class OpenAiChatClient implements OpenAiClient, ChatClient {
     @Override
     public Mono<ChatCompletion> chatCompletion(ModelInvocationContext context, ChatCompletionRequest request) {
         return openAiApi.chatCompletion(context.meta().provider().baseUrl(),
-            context.providerKey().credential(),
+            context.providerKey().getApiKey(),
             request);
     }
 
@@ -30,7 +30,7 @@ public class OpenAiChatClient implements OpenAiClient, ChatClient {
     public Flux<ChatCompletionChunk> chatCompletionStream(ModelInvocationContext context,
         ChatCompletionRequest request) {
         return openAiApi.chatCompletionStream(context.meta().provider().baseUrl(),
-            context.providerKey().credential(),
+            context.providerKey().getApiKey(),
             request);
     }
 }

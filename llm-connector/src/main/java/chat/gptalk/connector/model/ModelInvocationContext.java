@@ -4,5 +4,4 @@ public record ModelInvocationContext(
     ModelMeta meta,
     LlmProviderKey providerKey
 ) {
-
 }
