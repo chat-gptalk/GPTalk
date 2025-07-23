@@ -12,13 +12,18 @@
 export default {
   // 如果需要自定义本地开发服务器  请取消注释按需调整
   dev: {
+    '/api/v1/auth': {
+      target: 'http://localhost:8401',
+      changeOrigin: true,
+      //pathRewrite: {'^/api': ''}
+    },
     '/api/': {
-      target: 'http://localhost:9001',
+      target: 'http://localhost:8100',
       changeOrigin: true,
       //pathRewrite: {'^/api': ''}
     },
     '/openapi/': {
-      target: 'http://localhost',
+      target: 'http://localhost:8080',
       changeOrigin: true,
       compress: false,
       ws: true,

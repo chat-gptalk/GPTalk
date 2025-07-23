@@ -12,11 +12,13 @@ spring:
     url: r2dbc:postgresql://localhost:5432/gptalk_db
     username: postgres
     password: root
-  ai:
-    openai:
-      base-url: ${OPENAI_BASE_URL}
-      api-key: ${OPENAI_API_KEY}
+logging:
+  level:
+    root: trace
+    org.springframework.security: trace
 gptalk:
+  auth:
+    baseUrl: http://localhost:8401
   connector:
     llm-provider:
       base-url: http://localhost:9000

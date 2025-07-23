@@ -141,7 +141,7 @@ export default defineConfig({
       // 或者使用在线的版本
       // schemaPath: "https://gw.alipayobjects.com/os/antfincdn/M%24jrzTTYJN/oneapi.json"
       //schemaPath: join(__dirname, 'oneapi.json'),
-      schemaPath: "http://localhost:9001/v3/api-docs",
+      schemaPath: "http://localhost:8100/v3/api-docs",
       projectName: 'console',
       mock: false,
     },

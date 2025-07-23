@@ -30,6 +30,8 @@ import {
   useXChat,
 } from '@ant-design/x';
 import OpenAI from 'openai';
+import {OpenAIStreamClient} from '@/lib/openai';
+
 import {Avatar, Button, Flex, type GetProp, Space, Spin, message} from 'antd';
 import {createStyles} from 'antd-style';
 import dayjs from 'dayjs';
@@ -264,15 +266,17 @@ interface MessageProps {
   content: string;
 }
 
-const client = new OpenAI({
+/*const client = new OpenAI({
   apiKey: '',
-  baseURL: 'http://localhost:8080/openapi/v1',
+  baseURL: 'http://localhost:8000/openapi/v1',
   dangerouslyAllowBrowser: true,
   defaultHeaders: {
     'Authorization': null,
     'X-API-KEY-Id': 'fa948168-fdfd-4b2e-adb5-8f2a06e5f3cd',
   }
-});
+});*/
+
+const client = new OpenAIStreamClient();
 
 const PlaygroundPage: React.FC = () => {
   const {styles} = useStyle();
@@ -293,7 +297,7 @@ const PlaygroundPage: React.FC = () => {
       if (!message) {
         return;
       }
-      const stream = await client.chat.completions.create({
+      const stream = client.chatCompletionStream('fa948168-fdfd-4b2e-adb5-8f2a06e5f3cd', {
         model: 'vm:docs4dev',
         messages: [{role: "user", content: message.content}],
         stream: true,

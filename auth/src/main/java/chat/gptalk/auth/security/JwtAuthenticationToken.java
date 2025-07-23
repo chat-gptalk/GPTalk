@@ -1,6 +1,6 @@
 package chat.gptalk.auth.security;
 
-import chat.gptalk.security.model.AdminUser;
+import chat.gptalk.security.model.AuthUser;
 import lombok.Getter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -11,7 +11,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     private String accessToken;
     @Getter
     private String refreshToken;
-    private AdminUser user;
+    private AuthUser user;
 
     public JwtAuthenticationToken(String accessToken) {
         super(null);
@@ -27,7 +27,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         this.refreshToken = refreshToken;
     }
 
-    public JwtAuthenticationToken(AdminUser user) {
+    public JwtAuthenticationToken(AuthUser user) {
         super(user.roles().stream().map(SimpleGrantedAuthority::new).toList());
         setAuthenticated(true);
         this.user = user;

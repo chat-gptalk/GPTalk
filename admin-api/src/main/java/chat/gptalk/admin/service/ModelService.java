@@ -9,6 +9,7 @@ import chat.gptalk.common.constants.ModelFeature;
 import chat.gptalk.common.constants.ModelStatus;
 import chat.gptalk.common.entity.LlmModelEntity;
 import chat.gptalk.common.exception.BizException;
+import chat.gptalk.security.model.AuthUser;
 import chat.gptalk.security.util.SecurityUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -83,7 +84,7 @@ public class ModelService {
             .contextLength(0)
             .maxOutputTokens(0)
             .status(ModelStatus.PENDING.name())
-            .userId(SecurityUtils.getCurrentUser().userId())
+            .userId(SecurityUtils.getCurrentUser(AuthUser.class).userId())
             .tenantId(SecurityUtils.getTenantId())
             .createdAt(OffsetDateTime.now())
             .updatedAt(OffsetDateTime.now())

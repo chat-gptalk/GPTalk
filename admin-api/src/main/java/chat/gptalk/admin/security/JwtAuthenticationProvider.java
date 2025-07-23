@@ -1,7 +1,7 @@
 package chat.gptalk.admin.security;
 
 import chat.gptalk.security.JwksManager;
-import chat.gptalk.security.model.AdminUser;
+import chat.gptalk.security.model.AuthUser;
 import chat.gptalk.security.util.JwtVerifyUtils;
 import java.security.interfaces.RSAPublicKey;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -23,7 +23,7 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) {
         JwtAuthenticationToken jwtAuthenticationToken = (JwtAuthenticationToken) authentication;
         try {
-            AdminUser user = jwtVerifyUtils.verifyAndParse(jwtAuthenticationToken.getAccessToken());
+            AuthUser user = jwtVerifyUtils.verifyAndParse(jwtAuthenticationToken.getAccessToken());
             return new JwtAuthenticationToken(user);
         } catch (Exception e) {
             throw new BadCredentialsException("Invalid JWT Token", e);

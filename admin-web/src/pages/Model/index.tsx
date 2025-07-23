@@ -225,7 +225,7 @@ const AIService: React.FC = () => {
                                   <>
                                     <Descriptions layout="horizontal" column={1}>
                                       <Descriptions.Item
-                                          label="Provider">{item.LLMProvider.name}</Descriptions.Item>
+                                          label="Provider">{item.provider.name}</Descriptions.Item>
                                       <Descriptions.Item
                                           label="Context length">{item.maxOutputTokens}</Descriptions.Item>
                                       <Descriptions.Item
