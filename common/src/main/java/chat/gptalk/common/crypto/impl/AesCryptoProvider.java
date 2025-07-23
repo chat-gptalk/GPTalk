@@ -4,6 +4,8 @@ import chat.gptalk.common.config.CryptoProperties;
 import chat.gptalk.common.crypto.CryptoProvider;
 import java.util.Base64;
 import javax.crypto.Cipher;
+import javax.crypto.KeyGenerator;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 public class AesCryptoProvider implements CryptoProvider {
@@ -12,7 +14,7 @@ public class AesCryptoProvider implements CryptoProvider {
     private final byte[] secretKey;
 
     public AesCryptoProvider(CryptoProperties cryptoProperties) {
-        this.secretKey = cryptoProperties.aes().secret().getBytes();
+        this.secretKey = Base64.getDecoder().decode(cryptoProperties.aes().secret());
     }
 
     @Override
@@ -35,5 +37,17 @@ public class AesCryptoProvider implements CryptoProvider {
         } catch (Exception e) {
             throw new RuntimeException("AES decryption error", e);
         }
+    }
+
+    private static SecretKey generateAESKey(int keySize) throws Exception {
+        KeyGenerator keyGen = KeyGenerator.getInstance(ALGORITHM);
+        keyGen.init(keySize);
+        return keyGen.generateKey();
+    }
+
+    public static void main(String[] args) throws Exception {
+        SecretKey secretKey = generateAESKey(256);
+        System.out.println("AES Key (Base64): " +
+            java.util.Base64.getEncoder().encodeToString(secretKey.getEncoded()));
     }
 }

@@ -40,7 +40,7 @@ const ProviderKeyModalForm: React.FC<Base.FormModelProps<API.ProviderKeyResponse
             initialValues={props.initialValues
                 ? {
                   ...props.initialValues,
-                  providerId: props.initialValues.LLMProvider?.providerId,
+                  providerId: props.initialValues.provider?.providerId,
                 }
                 : {
                   enabled: true,

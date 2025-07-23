@@ -68,9 +68,9 @@ const ProviderKeyList: React.FC = () => {
     },
     {
       title: 'Provider',
-      dataIndex: 'LLMProvider',
+      dataIndex: 'provider',
       render: (_, record) => {
-        return <>{record.LLMProvider.name}</>
+        return <>{record.provider.name}</>
       }
     },
     {
@@ -253,7 +253,7 @@ const ProviderKeyList: React.FC = () => {
             initialValues={selectedData}
             onSubmit={(values) => {
               if (formMode === 'create') {
-                return createProviderKey(values)
+                return createProviderKey({...values, key: JSON.stringify({"api_key": values.key})})
                 .then(it => {
                   setModelOpen(false);
                   actionRef.current?.reload();

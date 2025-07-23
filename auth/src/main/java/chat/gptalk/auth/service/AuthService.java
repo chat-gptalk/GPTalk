@@ -11,6 +11,7 @@ import chat.gptalk.auth.model.response.LoginResponse;
 import chat.gptalk.auth.model.response.RegisterResponse;
 import chat.gptalk.auth.repository.TenantRepository;
 import chat.gptalk.auth.repository.UserRepository;
+import chat.gptalk.security.model.AuthUser;
 import chat.gptalk.auth.util.JwtUtils;
 import chat.gptalk.common.constants.EntityStatus;
 import chat.gptalk.common.constants.ErrorCode;
@@ -19,7 +20,6 @@ import chat.gptalk.common.entity.UserEntity;
 import chat.gptalk.common.exception.BizException;
 import chat.gptalk.common.util.BeanMapperUtils;
 import chat.gptalk.security.SecurityConstants;
-import chat.gptalk.security.model.AdminUser;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
@@ -50,7 +50,7 @@ public class AuthService {
             !passwordEncoder.matches(request.password(), userEntity.password())) {
             throw new BizException(ErrorCode.AU_INVALID_CREDENTIALS);
         }
-        AdminUser adminUser = new AdminUser(userEntity.userId(),
+        AuthUser adminUser = new AuthUser(userEntity.userId(),
             userEntity.username(),
             userEntity.tenantId(),
             userEntity.roles());

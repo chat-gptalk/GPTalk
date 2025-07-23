@@ -23,9 +23,9 @@
     <module>common</module>
     <module>common-security</module>
     <module>auth</module>
-    <module>gateway</module>
+<!--    <module>gateway</module>-->
     <module>admin-api</module>
-    <module>llm-connector</module>
+    <module>connector</module>
   </modules>
 
   <url>https://gptalk.chat</url>

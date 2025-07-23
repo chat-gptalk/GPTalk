@@ -1,12 +1,15 @@
-package chat.gptalk.gateway.config;
+package chat.gptalk.connector.config;
+
+import static chat.gptalk.connector.util.ReactiveUtils.ensureTrue;
 
 import chat.gptalk.common.constants.ErrorCode;
 import chat.gptalk.common.exception.LLMError;
 import chat.gptalk.common.exception.LLMError.ErrorDetails;
 import chat.gptalk.common.util.JsonUtils;
-import chat.gptalk.gateway.security.InternalAuthenticationToken;
-import chat.gptalk.gateway.security.OpenApiAuthenticationToken;
-import chat.gptalk.gateway.service.AuthService;
+import chat.gptalk.connector.security.AuthService;
+import chat.gptalk.connector.security.InternalAuthenticationToken;
+import chat.gptalk.connector.security.OpenApiAuthenticationToken;
+import chat.gptalk.connector.security.OpenApiUser;
 import chat.gptalk.security.JwksManager;
 import chat.gptalk.security.SecurityConstants;
 import chat.gptalk.security.model.AuthUser;
@@ -123,13 +126,13 @@ public class SecurityConfig {
             String jwtToken = credentials.get("jwtToken").toString();
             UUID apiKeyId = (UUID) credentials.get("apiKeyId");
             AuthUser adminUser = jwtVerifyUtils.verifyAndParse(jwtToken);
-            return authService.verify(adminUser.tenantId(), apiKeyId)
-                .filter(it -> it)
-                .map(it -> new InternalAuthenticationToken(OpenApiUser.builder()
+            return ensureTrue(authService.verifyApiKeyOwnership(adminUser.tenantId(), apiKeyId),
+                () -> new InternalAuthenticationToken(OpenApiUser.builder()
                     .userId(adminUser.userId())
                     .tenantId(adminUser.tenantId())
                     .apiKeyId(apiKeyId)
-                    .build()));
+                    .build()),
+                new BadCredentialsException("API Key not owned by user"));
         };
     }
 
@@ -155,11 +158,6 @@ public class SecurityConfig {
         if (accessTokenCookie == null) {
             return Mono.error(new BadCredentialsException("Invalid access token"));
         }
-        //String clientId = exchange.getRequest().getHeaders().getFirst(SecurityConstants.HEADER_CLIENT_ID);
-        /*if (StringUtils.hasText(clientId)) {
-            return Mono.error(new BadRequestException("Invalid client ID"));
-        }*/
-
         String apiKeyId = exchange.getRequest().getHeaders().getFirst(SecurityConstants.HEADER_API_KEY_ID);
         if (!StringUtils.hasText(apiKeyId)) {
             return Mono.error(new BadCredentialsException("apiKey ID is required"));

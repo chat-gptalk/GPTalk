@@ -10,6 +10,7 @@ import chat.gptalk.common.constants.ErrorCode;
 import chat.gptalk.common.entity.LlmModelEntity;
 import chat.gptalk.common.entity.LlmProviderEntity;
 import chat.gptalk.common.exception.BizException;
+import chat.gptalk.security.model.AuthUser;
 import chat.gptalk.security.util.SecurityUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -103,7 +104,7 @@ public class ProviderService {
             .description(createProviderRequest.description())
             .system(false)
             .enabled(true)
-            .userId(SecurityUtils.getCurrentUser().userId())
+            .userId(SecurityUtils.getCurrentUser(AuthUser.class).userId())
             .tenantId(SecurityUtils.getTenantId())
             .createdAt(OffsetDateTime.now())
             .updatedAt(OffsetDateTime.now())

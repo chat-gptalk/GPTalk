@@ -7,10 +7,11 @@ import chat.gptalk.admin.model.response.VirtualModelResponse;
 import chat.gptalk.admin.repository.VirtualModelMappingRepository;
 import chat.gptalk.admin.repository.VirtualModelRepository;
 import chat.gptalk.common.constants.ErrorCode;
-import chat.gptalk.common.exception.BizException;
-import chat.gptalk.security.util.SecurityUtils;
 import chat.gptalk.common.entity.VirtualModelEntity;
 import chat.gptalk.common.entity.VirtualModelMappingEntity;
+import chat.gptalk.common.exception.BizException;
+import chat.gptalk.security.model.AuthUser;
+import chat.gptalk.security.util.SecurityUtils;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
@@ -51,7 +52,7 @@ public class VirtualModelService {
             .description(createVirtualModelRequest.description())
             .virtualModelId(virtualModelId)
             .enabled(true)
-            .userId(SecurityUtils.getCurrentUser().userId())
+            .userId(SecurityUtils.getCurrentUser(AuthUser.class).userId())
             .tenantId(SecurityUtils.getTenantId())
             .createdAt(OffsetDateTime.now())
             .updatedAt(OffsetDateTime.now())
@@ -61,7 +62,7 @@ public class VirtualModelService {
             .map(modelId -> VirtualModelMappingEntity.builder()
                 .modelId(modelId)
                 .virtualModelId(virtualModelId)
-                .userId(SecurityUtils.getCurrentUser().userId())
+                .userId(SecurityUtils.getCurrentUser(AuthUser.class).userId())
                 .tenantId(SecurityUtils.getTenantId())
                 .weight(0)
                 .priority(0)
@@ -121,7 +122,7 @@ public class VirtualModelService {
                 .map(modelId -> VirtualModelMappingEntity.builder()
                     .modelId(modelId)
                     .virtualModelId(virtualModelId)
-                    .userId(SecurityUtils.getCurrentUser().userId())
+                    .userId(SecurityUtils.getCurrentUser(AuthUser.class).userId())
                     .tenantId(SecurityUtils.getTenantId())
                     .weight(0)
                     .priority(0)

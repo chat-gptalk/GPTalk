@@ -5,7 +5,7 @@ import chat.gptalk.admin.model.response.VirtualKeyResponse;
 import chat.gptalk.admin.repository.VirtualKeyRepository;
 import chat.gptalk.common.constants.EntityStatus;
 import chat.gptalk.common.entity.VirtualKeyEntity;
-import chat.gptalk.security.model.AdminUser;
+import chat.gptalk.security.model.AuthUser;
 import chat.gptalk.security.util.ApiKeyUtils;
 import chat.gptalk.security.util.SecurityUtils;
 import jakarta.validation.constraints.NotNull;
@@ -32,7 +32,7 @@ public class VirtualKeyService {
     }
 
     public VirtualKeyResponse createKey(CreateVirtualKeyRequest createKeyRequest) {
-        AdminUser currentUser = SecurityUtils.getCurrentUser();
+        AuthUser currentUser = SecurityUtils.getCurrentUser(AuthUser.class);
         String key = ApiKeyUtils.newKey();
         VirtualKeyEntity entity = VirtualKeyEntity.builder()
             .virtualKeyId(UUID.randomUUID())

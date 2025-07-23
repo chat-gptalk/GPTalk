@@ -6,7 +6,6 @@ import chat.gptalk.connector.sp.ModelClientFactory;
 import chat.gptalk.connector.sp.model.chat.ChatCompletion;
 import chat.gptalk.connector.sp.model.chat.ChatCompletionChunk;
 import chat.gptalk.connector.sp.model.chat.ChatCompletionRequest;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
@@ -19,8 +18,8 @@ public class ChatService {
     private final ModelRouter modelRouter;
     private final ModelClientFactory clientFactory;
 
-    public Mono<ChatCompletion> chatCompletion(UUID tenantId, ChatCompletionRequest chatCompletionRequest) {
-        return createContext(tenantId, chatCompletionRequest)
+    public Mono<ChatCompletion> chatCompletion(ChatCompletionRequest chatCompletionRequest) {
+        return createContext(chatCompletionRequest)
             .flatMap(context -> clientFactory.getChatClient(context.meta().provider().sdkClass())
                 .flatMap(
                     client -> client.chatCompletion(context,
@@ -29,16 +28,16 @@ public class ChatService {
             );
     }
 
-    private Mono<ModelInvocationContext> createContext(UUID tenantId, ChatCompletionRequest chatCompletionRequest) {
-        return modelRouter.resolveMeta(tenantId, chatCompletionRequest.model())
+    private Mono<ModelInvocationContext> createContext(ChatCompletionRequest chatCompletionRequest) {
+        return modelRouter.resolveMeta(chatCompletionRequest.model())
             .flatMap(modelMeta ->
-                modelRouter.selectKey(tenantId, modelMeta.provider().providerId(), modelMeta.model().modelId())
+                modelRouter.selectKey(modelMeta.provider().providerId(), modelMeta.model().modelId())
                     .map(providerKey -> new ModelInvocationContext(modelMeta, providerKey))
             );
     }
 
-    public Flux<ChatCompletionChunk> chatCompletionStream(UUID tenantId, ChatCompletionRequest chatCompletionRequest) {
-        return createContext(tenantId, chatCompletionRequest)
+    public Flux<ChatCompletionChunk> chatCompletionStream(ChatCompletionRequest chatCompletionRequest) {
+        return createContext(chatCompletionRequest)
             .flatMapMany(context -> clientFactory.getChatClient(context.meta().provider().sdkClass())
                 .flatMapMany(
                     client -> client.chatCompletionStream(context,

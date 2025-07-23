@@ -1,7 +1,7 @@
 package chat.gptalk.auth.util;
 
+import chat.gptalk.security.model.AuthUser;
 import chat.gptalk.security.SecurityConstants;
-import chat.gptalk.security.model.AdminUser;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
@@ -28,7 +28,7 @@ public final class JwtUtils {
         this.verifier = JWT.require(algorithm).build();
     }
 
-    public String generateToken(AdminUser user, Duration expiration) {
+    public String generateToken(AuthUser user, Duration expiration) {
         return JWT.create()
             .withIssuer("gptalk-auth")
             .withIssuedAt(Instant.now())
@@ -40,9 +40,9 @@ public final class JwtUtils {
             .sign(algorithm);
     }
 
-    public AdminUser verifyAndParse(String token) {
+    public AuthUser verifyAndParse(String token) {
         DecodedJWT decodedJWT = verify(token);
-        return new AdminUser(
+        return new AuthUser(
             UUID.fromString(decodedJWT.getSubject()),
             decodedJWT.getClaim(SecurityConstants.CLAIM_USERNAME).asString(),
             UUID.fromString(decodedJWT.getClaim(SecurityConstants.CLAIM_TENANT_ID).asString()),

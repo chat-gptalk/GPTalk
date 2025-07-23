@@ -1,5 +1,5 @@
 server:
-  port: 8200
+  port: 8100
 spring:
   application:
     name: GPTalk admin api
@@ -22,7 +22,7 @@ logging:
 
 gptalk:
   auth:
-    baseUrl: http://localhost:9001
+    baseUrl: http://localhost:8401
   crypto:
     enabled: true
     type: "AES"

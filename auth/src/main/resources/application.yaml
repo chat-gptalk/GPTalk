@@ -1,5 +1,5 @@
 server:
-  port: 9001
+  port: 8401
 spring:
   application:
     name: GPTalk admin console

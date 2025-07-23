@@ -6,14 +6,14 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class GpTalkAuthApplication {
+public class GPTalkAuthApplication {
 	@PostConstruct
 	public void init() {
 		TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 	}
 
 	public static void main(String[] args) {
-		SpringApplication.run(GpTalkAuthApplication.class, args);
+		SpringApplication.run(GPTalkAuthApplication.class, args);
 	}
 
 }

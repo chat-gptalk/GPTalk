@@ -57,7 +57,7 @@ const ModelModalForm: React.FC<Base.FormModelProps<API.ModelResponse, API.Create
               span: 18
             }}
             initialValues={props.initialValues
-                ? {...props.initialValues, providerId: props.initialValues.LLMProvider?.providerId}
+                ? {...props.initialValues, providerId: props.initialValues.provider?.providerId}
                 : {
                   enabled: true,
                   sdkClientClass: 'openai'

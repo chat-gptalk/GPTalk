@@ -18,7 +18,7 @@ public final class SecurityConstants {
     public static final String HEADER_USERNAME = "X-Username-Base64";
     public static final String HEADER_ROLES = "X-Roles";
     public static final String HEADER_TENANT_ID = "X-Tenant-Id";
-    public static final String HEADER_API_KEY_ID = "X-API-KEY-Id";
+    public static final String HEADER_API_KEY_ID = "X-Api-Key-Id";
     public static final String HEADER_CLIENT_ID = "X-Client-Id";
 
     public static final String AUTHORIZATION_HEADER = "Authorization";
